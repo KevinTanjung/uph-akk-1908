@@ -5,6 +5,7 @@ import hashlib
 import importlib.util
 import json
 import math
+import os
 import shutil
 import tempfile
 import unittest
@@ -71,7 +72,7 @@ class StatisticsTests(unittest.TestCase):
     def test_tuning_comparison_accepts_equal_budgets_and_changed_parameters(self):
         source=EXPERIMENT.parent/'public-18-10000'
         with tempfile.TemporaryDirectory() as folder:
-            root=Path(folder);old=root/'baseline';new=root/'candidate'
+            root=Path(folder).resolve();old=root/'baseline';new=root/'candidate'
             for target in (old,new):
                 target.mkdir()
                 for name in ('protocol.json','runs.csv','metadata.json','audit.json','statistics.json'):
@@ -89,8 +90,13 @@ class StatisticsTests(unittest.TestCase):
             stats_record['input_sha256']={name:hashlib.sha256((new/name).read_bytes()).hexdigest()
                                           for name in stats_record['input_sha256']}
             (new/'statistics.json').write_text(json.dumps(stats_record))
-            with patch('scripts.compare_public_budgets.ROOT',root),contextlib.redirect_stdout(io.StringIO()):
-                compare(old,new,tuning=True)
+            previous=Path.cwd()
+            try:
+                os.chdir(root)
+                with patch('scripts.compare_public_budgets.ROOT',root),contextlib.redirect_stdout(io.StringIO()):
+                    compare(Path('baseline'),Path('candidate'),tuning=True)
+            finally:
+                os.chdir(previous)
             result=json.loads((new/'tuning-comparison.json').read_text())
             self.assertEqual(result['baseline_budget'],result['candidate_budget'])
             self.assertTrue(all(row['pvalue']==1 and not row['significant_at_0_05'] for row in result['improvements']))

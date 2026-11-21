@@ -41,7 +41,7 @@ def check_prefixes(baseline, candidate):
 
 
 def compare(baseline=EXPERIMENT,candidate=CANDIDATE,tuning=False):
-    baseline,candidate=Path(baseline),Path(candidate)
+    baseline,candidate=Path(baseline).resolve(),Path(candidate).resolve()
     old_protocol,_,old_rpds=load_blocks(baseline)
     new_protocol,_,new_rpds=load_blocks(candidate)
     keys=('instances','algorithms','seeds','parameters') if tuning else ('instances','algorithms','seeds','parameters','parameter_overrides')
