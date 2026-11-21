@@ -12,6 +12,7 @@ sys.path.insert(0,str(ROOT))
 from jssp.__main__ import write_csv
 from jssp.algorithms import DEFAULTS
 from jssp.benchmarks import NAMES
+from jssp.core import load
 from jssp.report import write_report
 
 
@@ -97,7 +98,8 @@ def main():
             subprocess.run(command,cwd=ROOT,stdout=log,stderr=subprocess.STDOUT,check=True)
         return name
     with ThreadPoolExecutor(max_workers=args.workers) as pool:
-        jobs=[pool.submit(run,name) for name in protocol['instances']]
+        order=sorted(protocol['instances'],key=lambda name:len(load(ROOT/'instances/public'/(name+'.json')).sequence),reverse=True)
+        jobs=[pool.submit(run,name) for name in order]
         for done,job in enumerate(as_completed(jobs),1):
             print(f'Completed instance {job.result()} ({done}/{len(jobs)})',flush=True)
     merge(args.output,protocol,args.workers,args.resume)

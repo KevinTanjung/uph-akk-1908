@@ -1,4 +1,5 @@
 """Compare matched 1000- and 10000-evaluation results and verify their shared search prefix."""
+import argparse
 import csv
 import hashlib
 import json
@@ -39,13 +40,16 @@ def check_prefixes(baseline, candidate):
                 status='Every current and best makespan in every 1000-evaluation prefix matches; elapsed times excluded')
 
 
-def compare(baseline=EXPERIMENT,candidate=CANDIDATE):
+def compare(baseline=EXPERIMENT,candidate=CANDIDATE,tuning=False):
     baseline,candidate=Path(baseline),Path(candidate)
     old_protocol,_,old_rpds=load_blocks(baseline)
     new_protocol,_,new_rpds=load_blocks(candidate)
-    for key in ('instances','algorithms','seeds','parameters','parameter_overrides'):
+    keys=('instances','algorithms','seeds','parameters') if tuning else ('instances','algorithms','seeds','parameters','parameter_overrides')
+    for key in keys:
         if old_protocol[key]!=new_protocol[key]: raise ValueError('protocol mismatch: '+key)
-    if old_protocol['budget']>=new_protocol['budget']: raise ValueError('candidate budget must be larger')
+    if tuning:
+        if old_protocol['budget']!=new_protocol['budget']: raise ValueError('tuning comparison requires equal budgets')
+    elif old_protocol['budget']>=new_protocol['budget']: raise ValueError('candidate budget must be larger')
     old_stats=json.loads((baseline/'statistics.json').read_text())
     new_stats=json.loads((candidate/'statistics.json').read_text())
     for folder,stats in ((baseline,old_stats),(candidate,new_stats)):
@@ -86,19 +90,27 @@ def compare(baseline=EXPERIMENT,candidate=CANDIDATE):
                           candidate_median_gap_pp=new['median_rpd_difference_a_minus_b_pp']))
     result=dict(baseline_budget=old_protocol['budget'],candidate_budget=new_protocol['budget'],
                 unit='18 paired instance means, each over the same 20 seeds',alpha=ALPHA,
-                within_budget_family='Six algorithm pairs per budget, Holm correction separately at each budget',
-                budget_change_family='Four two-sided exact Wilcoxon tests of mean RPD change, Holm correction across algorithms',
-                caveats=['Budgets share the same search prefixes, so best-so-far non-worsening is guaranteed by construction',
+                within_budget_family='Six algorithm pairs per setting, Holm correction separately at each setting' if tuning else 'Six algorithm pairs per budget, Holm correction separately at each budget',
+                budget_change_family='Four two-sided exact Wilcoxon tests of tuning changes, Holm correction across algorithms' if tuning else 'Four two-sided exact Wilcoxon tests of mean RPD change, Holm correction across algorithms',
+                caveats=['Parameters were selected only on the disjoint pilots; improvements on final benchmarks are not guaranteed',
+                         'Matching seed numbers do not imply matching search paths when parameters change',
+                         'Both campaigns used four concurrent processes; runtime includes I/O and contention'] if tuning else ['Budgets share the same search prefixes, so best-so-far non-worsening is guaranteed by construction',
                          'Significance at one budget but not another does not itself prove a change in the algorithm gap',
                          'The 10000-evaluation campaign used four concurrent processes and cached fixed inputs; runtimes are not isolated speed comparisons'],
-                prefix_verification=check_prefixes(baseline,candidate),improvements=improvements,posthoc_comparison=pairs,
+                prefix_verification=dict(status='Not applicable: changed parameters need not share search prefixes') if tuning else check_prefixes(baseline,candidate),improvements=improvements,posthoc_comparison=pairs,
                 baseline_friedman=old_stats['friedman'],candidate_friedman=new_stats['friedman'],
                 input_sha256={str(folder.relative_to(ROOT))+'/'+name:hashlib.sha256((folder/name).read_bytes()).hexdigest()
                               for folder in (baseline,candidate) for name in ('protocol.json','runs.csv','statistics.json','audit.json')})
-    (candidate/'budget-comparison.json').write_text(json.dumps(result,indent=2,allow_nan=False)+'\n')
-    with (candidate/'budget-comparison.csv').open('w',newline='') as stream:
+    stem='tuning-comparison' if tuning else 'budget-comparison'
+    (candidate/(stem+'.json')).write_text(json.dumps(result,indent=2,allow_nan=False)+'\n')
+    with (candidate/(stem+'.csv')).open('w',newline='') as stream:
         writer=csv.DictWriter(stream,fieldnames=list(instance_rows[0]));writer.writeheader();writer.writerows(instance_rows)
     print(json.dumps(result,indent=2))
 
 
-if __name__=='__main__': compare()
+if __name__=='__main__':
+    parser=argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--baseline',type=Path,default=EXPERIMENT)
+    parser.add_argument('--candidate',type=Path,default=CANDIDATE)
+    parser.add_argument('--tuning',action='store_true')
+    args=parser.parse_args();compare(args.baseline,args.candidate,args.tuning)

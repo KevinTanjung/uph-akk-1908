@@ -1,4 +1,6 @@
 """Optional SciPy tests; core scheduling tests still run without analysis packages."""
+import contextlib
+import io
 import hashlib
 import importlib.util
 import json
@@ -6,13 +8,14 @@ import math
 import shutil
 import tempfile
 import unittest
+from unittest.mock import patch
 from pathlib import Path
 
 AVAILABLE = importlib.util.find_spec('scipy') is not None
 if AVAILABLE:
     import numpy as np
     from scipy import stats
-    from scripts.compare_public_budgets import check_prefixes
+    from scripts.compare_public_budgets import check_prefixes,compare
     from scripts.analyze_public_results import EXPERIMENT, friedman, holm, load_blocks, paired_test
 
 
@@ -64,6 +67,35 @@ class StatisticsTests(unittest.TestCase):
             (root/'new/audit.json').write_text(json.dumps(audit))
             with self.assertRaisesRegex(ValueError,'search prefix differs'):
                 check_prefixes(root/'old',root/'new')
+
+    def test_tuning_comparison_accepts_equal_budgets_and_changed_parameters(self):
+        source=EXPERIMENT.parent/'public-18-10000'
+        with tempfile.TemporaryDirectory() as folder:
+            root=Path(folder);old=root/'baseline';new=root/'candidate'
+            for target in (old,new):
+                target.mkdir()
+                for name in ('protocol.json','runs.csv','metadata.json','audit.json','statistics.json'):
+                    shutil.copyfile(source/name,target/name)
+            protocol=json.loads((new/'protocol.json').read_text())
+            protocol['parameter_overrides']={'sa':{'temperature':30.0}}
+            (new/'protocol.json').write_text(json.dumps(protocol))
+            metadata=json.loads((new/'metadata.json').read_text())
+            metadata['parameter_overrides']=protocol['parameter_overrides']
+            (new/'metadata.json').write_text(json.dumps(metadata))
+            audit=json.loads((new/'audit.json').read_text())
+            audit['raw_sha256']['metadata.json']=hashlib.sha256((new/'metadata.json').read_bytes()).hexdigest()
+            (new/'audit.json').write_text(json.dumps(audit))
+            stats_record=json.loads((new/'statistics.json').read_text())
+            stats_record['input_sha256']={name:hashlib.sha256((new/name).read_bytes()).hexdigest()
+                                          for name in stats_record['input_sha256']}
+            (new/'statistics.json').write_text(json.dumps(stats_record))
+            with patch('scripts.compare_public_budgets.ROOT',root),contextlib.redirect_stdout(io.StringIO()):
+                compare(old,new,tuning=True)
+            result=json.loads((new/'tuning-comparison.json').read_text())
+            self.assertEqual(result['baseline_budget'],result['candidate_budget'])
+            self.assertTrue(all(row['pvalue']==1 and not row['significant_at_0_05'] for row in result['improvements']))
+            self.assertIn('Not applicable',result['prefix_verification']['status'])
+            self.assertFalse((new/'budget-comparison.json').exists())
 
     def test_audited_18_blocks_and_checksum_protection(self):
         protocol, totals, rpds = load_blocks()
