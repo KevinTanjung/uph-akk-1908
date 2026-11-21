@@ -1,0 +1,18 @@
+{
+  "name": "single",
+  "machines": 1,
+  "jobs": [
+    [
+      [
+        0,
+        3
+      ],
+      [
+        0,
+        2
+      ]
+    ]
+  ],
+  "bks": 5,
+  "source": "Hand checked: one job takes 5."
+}

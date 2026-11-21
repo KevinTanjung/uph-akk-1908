@@ -1,0 +1,28 @@
+{
+  "name": "unequal",
+  "machines": 2,
+  "jobs": [
+    [
+      [
+        0,
+        2
+      ],
+      [
+        1,
+        1
+      ],
+      [
+        0,
+        2
+      ]
+    ],
+    [
+      [
+        1,
+        2
+      ]
+    ]
+  ],
+  "bks": 5,
+  "source": "Hand checked: first job finishes at 5, second job runs 0\u20132."
+}

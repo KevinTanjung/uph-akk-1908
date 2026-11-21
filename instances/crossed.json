@@ -1,0 +1,28 @@
+{
+  "name": "crossed",
+  "machines": 2,
+  "jobs": [
+    [
+      [
+        0,
+        3
+      ],
+      [
+        1,
+        2
+      ]
+    ],
+    [
+      [
+        1,
+        3
+      ],
+      [
+        0,
+        2
+      ]
+    ]
+  ],
+  "bks": 5,
+  "source": "Hand checked: both first operations run 0\u20133, both second operations 3\u20135."
+}
