@@ -19,7 +19,7 @@ def write_report(path, runs, running=False):
         parts += ['<p>Run finished. See failures.jsonl for any failed runs. Synthetic cases are software tests, not public benchmarks.</p>']
     parts += ['<h2>Run results</h2><table><tr><th>Instance</th><th>Algorithm</th><th>Seed</th><th>Makespan</th><th>RPD %</th><th>Seconds</th><th>Evaluations</th></tr>']
     for r in runs:
-        parts.append('<tr>'+''.join('<td>'+esc(v)+'</td>' for v in [r['instance'],r['algorithm'],r['seed'],r['makespan'],'' if r['rpd'] is None else round(r['rpd'],2),round(r['runtime_seconds'],4),len(r['history'])])+'</tr>')
+        parts.append('<tr>'+''.join('<td>'+esc(v)+'</td>' for v in [r['instance'],r['algorithm'],r['seed'],r['makespan'],'' if r['rpd'] is None else round(r['rpd'],2),round(r['runtime_seconds'],4),r.get('evaluations',len(r['history']))])+'</tr>')
     parts.append('</table>')
     selected = {}
     for r in runs:
@@ -36,7 +36,7 @@ def write_report(path, runs, running=False):
         step=max(1, (len(history)+199)//200)
         sampled=history[::step]
         if sampled[-1] is not history[-1]: sampled.append(history[-1])
-        maximum=max(row['current'] for row in history)
+        maximum=r.get('history_max',max(row['current'] for row in history))
         width,height=1050,250
         points=lambda key:' '.join(f"{60+940*(row['evaluation']-1)/max(1,r['budget']-1):.1f},{210-170*row[key]/maximum:.1f}" for row in sampled)
         parts += ['<section><h2>'+esc(label)+'</h2>',

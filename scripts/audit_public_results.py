@@ -131,4 +131,5 @@ def audit(raw, target=ROOT/'experiments/public-18'):
 
 if __name__=='__main__':
     if not __debug__: raise RuntimeError('Run without -O so audit assertions execute')
-    audit(Path(sys.argv[1]) if len(sys.argv)>1 else ROOT/'results/public-18-1000')
+    audit(Path(sys.argv[1]) if len(sys.argv)>1 else ROOT/'results/public-18-1000',
+          Path(sys.argv[2]) if len(sys.argv)>2 else ROOT/'experiments/public-18')

@@ -45,6 +45,8 @@ def solve(instance, algorithm, budget=1000, seed=0, callback=None, **overrides):
     for key in ('crossover','mutation','inertia','cognitive','social','evaporation','cooling'):
         if cfg[key] > 1 or (key in ('evaporation','cooling') and cfg[key] == 1):
             raise ValueError('invalid probability or rate')
+    base_sequence = instance.sequence
+    operation_count = len(base_sequence)
     rng = random.Random(seed)
     history=[];best=None;best_score=math.inf;start=perf_counter()
     def evaluate(seq):
@@ -56,7 +58,7 @@ def solve(instance, algorithm, budget=1000, seed=0, callback=None, **overrides):
         if callback: callback(event | dict(best_sequence=best[:]))
         return score
     def shuffled():
-        seq=instance.sequence;rng.shuffle(seq);return seq
+        seq=base_sequence[:];rng.shuffle(seq);return seq
     size=min(cfg['population'],budget)
     if algorithm in ('ga','dpso'):
         pop=[shuffled() for _ in range(size)];scores=[evaluate(s) for s in pop]
@@ -66,6 +68,7 @@ def solve(instance, algorithm, budget=1000, seed=0, callback=None, **overrides):
     else:
         ops=[(j,k) for j,job in enumerate(instance.jobs) for k in range(len(job))]
         pheromone={(a,b):1. for a in [None]+ops for b in ops}
+        heuristic={op:(1/instance.jobs[op[0]][op[1]][1])**cfg['beta'] for op in ops}
     while len(history) < budget:
         if algorithm == 'ga':
             elite=min(range(len(pop)),key=lambda i:scores[i])
@@ -83,7 +86,7 @@ def solve(instance, algorithm, budget=1000, seed=0, callback=None, **overrides):
                 swaps=[s for s in velocities[i] if rng.random()<cfg['inertia']]
                 swaps += [s for s in difference(pop[i],personal[i]) if rng.random()<cfg['cognitive']]
                 swaps += [s for s in difference(pop[i],leader) if rng.random()<cfg['social']]
-                swaps=swaps[:2*len(instance.sequence)]
+                swaps=swaps[:2*operation_count]
                 child=pop[i][:]
                 for a,b in swaps: child[a],child[b]=child[b],child[a]
                 if rng.random()<cfg['mutation']: child=neighbor(child,rng)
@@ -93,9 +96,9 @@ def solve(instance, algorithm, budget=1000, seed=0, callback=None, **overrides):
             colony=[]
             for _ in range(min(size,budget-len(history))):
                 seq=[];edges=[];counts=[0]*len(instance.jobs);previous=None
-                while len(seq)<len(instance.sequence):
+                while len(seq)<operation_count:
                     eligible=[(j,counts[j]) for j,job in enumerate(instance.jobs) if counts[j]<len(job)]
-                    weights=[pheromone[previous,op]**cfg['alpha']*(1/instance.jobs[op[0]][op[1]][1])**cfg['beta'] for op in eligible]
+                    weights=[pheromone[previous,op]**cfg['alpha']*heuristic[op] for op in eligible]
                     op=rng.choices(eligible,weights=weights)[0]
                     edges.append((previous,op));seq.append(op[0]);counts[op[0]]+=1;previous=op
                 colony.append((edges,evaluate(seq)))

@@ -81,7 +81,13 @@ def main(argv=None):
                         result=solve(inst,alg,args.budget,seed,progress,**params.get(alg,{}))
                         result.update(instance=inst.name,run_id=run_id,input_index=index)
                         (output/f'{run_id}.json').write_text(json.dumps(result,indent=2)+'\n')
-                        runs.append(result)
+                        # Full histories are already saved; retain only chart samples between runs.
+                        history=result['history']
+                        step=max(1,(len(history)+199)//200)
+                        sampled=history[::step]
+                        if sampled[-1] is not history[-1]: sampled.append(history[-1])
+                        runs.append(result | dict(history=sampled,evaluations=len(history),
+                                                  history_max=max(row['current'] for row in history)))
                         summaries.append(dict(run_id=run_id,instance=inst.name,input_index=index,jobs=len(inst.jobs),machines=inst.machines,
                                               ratio=len(inst.jobs)/inst.machines,algorithm=alg,seed=seed,makespan=result['makespan'],
                                               rpd=result['rpd'],runtime_seconds=result['runtime_seconds'],evaluations=len(result['history'])))

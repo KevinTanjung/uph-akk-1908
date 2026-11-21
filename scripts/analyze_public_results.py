@@ -4,6 +4,7 @@ import hashlib
 import json
 import math
 import platform
+import sys
 from collections import defaultdict
 from fractions import Fraction
 from itertools import combinations
@@ -101,8 +102,9 @@ def paired_test(differences):
                 nonzero_pairs=len(nonzero), sign_assignments=2**len(nonzero))
 
 
-def main():
-    protocol, totals, rpds = load_blocks()
+def main(folder=EXPERIMENT):
+    folder = Path(folder)
+    protocol, totals, rpds = load_blocks(folder)
     omnibus, ranks = friedman(totals)
     algorithms = protocol['algorithms']
     pairs = []
@@ -115,7 +117,7 @@ def main():
     for pair, adjusted in zip(pairs, holm([pair['pvalue'] for pair in pairs])):
         pair['holm_pvalue'] = adjusted
         pair['significant_at_0_05'] = bool(omnibus['permutation_pvalue'] < ALPHA and adjusted < ALPHA)
-    inputs = {name:hashlib.sha256((EXPERIMENT/name).read_bytes()).hexdigest()
+    inputs = {name:hashlib.sha256((folder/name).read_bytes()).hexdigest()
               for name in ('runs.csv','protocol.json','metadata.json','audit.json')}
     result = dict(alpha=ALPHA, unit='One instance; mean over its 20 seeds for each algorithm',
                   instances=protocol['instances'], algorithms=algorithms, seeds_per_algorithm=len(protocol['seeds']),
@@ -124,10 +126,10 @@ def main():
                   friedman=omnibus, mean_ranks=dict(zip(algorithms, map(float, ranks.mean(axis=0)))), posthoc=pairs,
                   wilcoxon_method='Exact sign permutations of nonzero paired RPD differences; average ranks for ties; zeros discarded',
                   assumptions='Instances treated as independent blocks; exchangeable algorithm labels under omnibus null; symmetric paired differences for Wilcoxon',
-                  limitations='Selected instances from two families; untuned defaults and 1000 evaluations; no universal algorithm claim; Monte Carlo omnibus p-value has finite resolution',
+                  limitations=f"Selected instances from two families; untuned defaults and {protocol['budget']} evaluations; no universal algorithm claim; Monte Carlo omnibus p-value has finite resolution",
                   input_sha256=inputs, software=dict(python=platform.python_version(), numpy=np.__version__, scipy=scipy.__version__))
-    (EXPERIMENT/'statistics.json').write_text(json.dumps(result, indent=2, allow_nan=False)+'\n')
-    with (EXPERIMENT/'statistics-blocks.csv').open('w', newline='') as stream:
+    (folder/'statistics.json').write_text(json.dumps(result, indent=2, allow_nan=False)+'\n')
+    with (folder/'statistics-blocks.csv').open('w', newline='') as stream:
         writer = csv.writer(stream)
         writer.writerow(['instance'] + [alg+'_mean_rpd' for alg in algorithms] + [alg+'_rank' for alg in algorithms])
         for name, row, row_ranks in zip(protocol['instances'], rpds, ranks):
@@ -136,4 +138,4 @@ def main():
 
 
 if __name__ == '__main__':
-    main()
+    main(Path(sys.argv[1]) if len(sys.argv)>1 else EXPERIMENT)

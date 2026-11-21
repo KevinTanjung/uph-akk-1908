@@ -25,4 +25,15 @@ class RunnerTests(unittest.TestCase):
             self.assertEqual(main(['--instances',str(root/'absent'),'--quiet','--output',str(bad)]),1)
             self.assertIn('absent',(bad/'failures.jsonl').read_text())
 
+    def test_chart_sampling_preserves_full_history_and_evaluation_count(self):
+        with tempfile.TemporaryDirectory() as folder:
+            root=Path(folder);case=root/'case.json'
+            case.write_text(json.dumps(dict(name='sample',machines=1,jobs=[[[0,2]]])))
+            output=root/'run'
+            self.assertEqual(main(['--instances',str(case),'--algorithms','sa','--budget','401',
+                                   '--repeats','1','--quiet','--output',str(output)]),0)
+            self.assertEqual(len(json.loads((output/'0-sa-0.json').read_text())['history']),401)
+            self.assertIn('<td>401</td>',(output/'report.html').read_text())
+            self.assertEqual(len((output/'telemetry.jsonl').read_text().splitlines()),401)
+
 if __name__=='__main__': unittest.main()
