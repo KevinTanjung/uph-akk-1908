@@ -21,7 +21,7 @@ class PartitionTests(unittest.TestCase):
                             '--protocol',str(path),'--output',str(output),'--workers','2'],
                            cwd=ROOT,stdout=subprocess.DEVNULL,check=True)
             audit(output,target)
-            rows=list(csv.DictReader((output/'runs.csv').open()))
+            with (output/'runs.csv').open() as stream: rows=list(csv.DictReader(stream))
             self.assertEqual(len(rows),144)
             self.assertEqual(len({row['run_id'] for row in rows}),144)
             self.assertEqual(json.loads((target/'audit.json').read_text())['candidate_evaluations'],432)

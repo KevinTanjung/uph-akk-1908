@@ -12,6 +12,7 @@ AVAILABLE = importlib.util.find_spec('scipy') is not None
 if AVAILABLE:
     import numpy as np
     from scipy import stats
+    from scripts.compare_public_budgets import check_prefixes
     from scripts.analyze_public_results import EXPERIMENT, friedman, holm, load_blocks, paired_test
 
 
@@ -42,6 +43,27 @@ class StatisticsTests(unittest.TestCase):
             self.assertEqual(result['exceedances'],0)
             self.assertEqual(result['permutation_pvalue'],.01)
         with self.assertRaises(ValueError): friedman(np.ones((10,4)))
+
+    def test_budget_comparison_rejects_changed_search_prefix(self):
+        with tempfile.TemporaryDirectory() as folder:
+            root=Path(folder)
+            old=dict(instance='case',algorithm='ga',seed=0,parameters={},budget=2,makespan=8,
+                     history=[dict(current=10,best=10),dict(current=8,best=8)])
+            new=dict(old,budget=3,makespan=7,history=old['history']+[dict(current=7,best=7)])
+            for label,record in [('old',old),('new',new)]:
+                target=root/label;target.mkdir();raw=root/(label+'-raw');raw.mkdir()
+                path=raw/'0-ga-0.json';path.write_text(json.dumps(record))
+                (target/'audit.json').write_text(json.dumps(dict(raw_output_directory=str(raw),evaluations_per_run=record['budget'],
+                    raw_sha256={path.name:hashlib.sha256(path.read_bytes()).hexdigest()})))
+            (root/'old/runs.csv').write_text('run_id\n0-ga-0\n')
+            self.assertEqual(check_prefixes(root/'old',root/'new')['matched_candidate_evaluations'],2)
+            new['history'][0]=dict(current=11,best=11)
+            path=root/'new-raw/0-ga-0.json';path.write_text(json.dumps(new))
+            audit=json.loads((root/'new/audit.json').read_text())
+            audit['raw_sha256'][path.name]=hashlib.sha256(path.read_bytes()).hexdigest()
+            (root/'new/audit.json').write_text(json.dumps(audit))
+            with self.assertRaisesRegex(ValueError,'search prefix differs'):
+                check_prefixes(root/'old',root/'new')
 
     def test_audited_18_blocks_and_checksum_protection(self):
         protocol, totals, rpds = load_blocks()

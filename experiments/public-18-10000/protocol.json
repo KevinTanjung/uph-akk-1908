@@ -69,5 +69,12 @@
   "command": "python3 scripts/run_partitioned_experiment.py --protocol experiments/public-18-10000/protocol.json --output results/public-18-10000 --workers 4",
   "comparison_baseline": "experiments/public-18",
   "workers": 4,
-  "initial_sequential_attempt": "Stopped for execution cost before completion; partial data retained locally in results/public-18-10000-sequential-partial and excluded from the final experiment"
+  "initial_sequential_attempt": "Stopped for execution cost before completion; partial data retained locally in results/public-18-10000-sequential-partial and excluded from the final experiment",
+  "analysis_plan": {
+    "alpha": 0.05,
+    "within_budget": "Repeat Friedman with 99999 within-instance permutations and six two-sided exact Wilcoxon comparisons with Holm correction",
+    "budget_changes": "Four paired tests on instance mean RPD changes, with Holm correction across algorithms; report coupled-prefix limitation",
+    "unit": "18 instance means, each averaging seeds 0 through 19",
+    "timing": "Analysis plan recorded before completion of the 10000-evaluation results; the 1000-evaluation findings were already known"
+  }
 }
