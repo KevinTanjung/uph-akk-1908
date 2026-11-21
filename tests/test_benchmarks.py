@@ -2,7 +2,6 @@ import json
 import shutil
 import tempfile
 import unittest
-from dataclasses import asdict
 from pathlib import Path
 from jssp.benchmarks import ROOT,NAMES,verify_sources
 from jssp.core import load
