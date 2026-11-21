@@ -79,7 +79,7 @@ This reader accepts a named instance in the original format. It does not guess a
 
 Compare algorithms at equal evaluation budgets rather than equal iteration counts: one population step evaluates many candidates, while one SA step evaluates one. Runtime includes progress callbacks, file writes and live report rendering, so use the same reporting setup across methods and treat these as observed script runtimes. Initialization costs differ. The same seed numbers do not make the four random searches identical.
 
-Parameters can be set in a JSON file, for example `{"ga":{"population":30,"mutation":0.3},"sa":{"temperature":30,"cooling":0.999}}`, passed with `--parameters path/to/parameters.json`. Default values are teaching starting points, not tuned research settings. Effective values are saved in every run JSON; fields for other algorithms are inactive. The public experiment below uses 18 verified benchmark instances and 20 seeds per instance, with the existing defaults frozen in advance. No parameter tuning was performed. A later study can tune on separate pilot instances and rerun the same protocol. The statistical analysis below adds paired tests across instances; the descriptive tables still show solution quality and variation.
+Parameters can be set in a JSON file, for example `{"ga":{"population":30,"mutation":0.3},"sa":{"temperature":30,"cooling":0.999}}`, passed with `--parameters path/to/parameters.json`. Default values are teaching starting points, not tuned research settings. Effective values are saved in every run JSON; fields for other algorithms are inactive. The first two public campaigns below use the original defaults. The [pilot-tuned follow-up](#pilot-tuning-and-a-separate-18-instance-rerun) selects settings on disjoint pilot instances and keeps the same final benchmark protocol. The statistical comparisons use instance means; the descriptive tables also report quality and variation.
 
 
 ## Public benchmark experiment
@@ -346,3 +346,124 @@ uv run --python 3.14 --with-requirements requirements-statistics.txt python scri
 ```
 
 If a campaign is interrupted, repeat the first command with `--resume`. Completed run files are checked and reused; only missing runs are computed. The prefix comparison requires the full local raw output from both budgets. All committed summaries and statistical inputs can be inspected without those raw files. The original 1,000-evaluation reproduction commands remain above.
+
+## Pilot tuning and a separate 18-instance rerun
+
+This follow-up keeps the scheduling model, decoder, operators and validator unchanged and selects parameter settings on separate pilot data, as proposed in section IV.B. The final comparison uses the same 18 benchmarks, 10,000 candidate evaluations per run and seeds 0–19 as the untuned 10,000-evaluation campaign. All work is on `main`.
+
+### Pilot separation and equal tuning allowance
+
+The pilots are **LA03 (10×5, BKS 597), LA13 (20×5, BKS 1150), LA23 (15×10, BKS 1032), and LA37 (15×15, BKS 1397)**. Their names and operation datasets are disjoint from the final 18. Operation data agrees between OR-Library and pinned JSPLIB files, and the two saved catalogues agree on BKS. See the [pilot source manifest](benchmarks/pilot-manifest.json). Pilot seeds are **100–102**, separate from final seeds 0–19.
+
+Each algorithm received **four configurations including its original defaults**, tested on all four pilots and three seeds at **10,000 evaluations per run**. That is **48 runs and 480,000 evaluations per algorithm**, or **192 runs and 1,920,000 evaluations** overall. All pilot trials and their telemetry were validated; there were zero recorded failures.
+
+The candidate list and selection rule were [committed before pilot execution](experiments/pilot-tuning/plan.json). The selector minimizes mean RPD across the 12 runs for each configuration, giving each pilot equal weight. It uses exact fractions for score comparisons; exact ties favor the earlier candidate, with defaults first. The selector reads only pilot results. This is a limited four-candidate search, not an exhaustive parameter optimization.
+
+| Algorithm | Selected configuration | Default pilot mean RPD | Selected pilot mean RPD | Selected active settings |
+| --- | ---: | ---: | ---: | --- |
+| GA | 0 | 5.7794% | 5.7794% | Defaults retained: population 20, crossover 0.8, mutation 0.2 |
+| DPSO | 1 | 6.7005% | 6.1142% | Population 10; inertia 0.3; cognitive 0.7; social 0.5; mutation 0.4 |
+| ACO | 1 | 14.9229% | 14.3772% | Colony 20; alpha 1; beta 1; evaporation 0.2; deposit 10 |
+| SA | 3 | 4.2205% | 3.0965% | Initial temperature 20; cooling 0.9995 |
+
+GA was tuned through the same search allowance, but its defaults won. We retained them rather than forcing a change. DPSO selected a smaller swarm and more mutation, ACO selected less short-operation bias with faster evaporation and larger deposits, and SA selected slower cooling. The pilot experiment evaluates these combined configurations, so it does not isolate the effect of each individual parameter.
+
+The selected overrides and the pilot selection hash were [frozen in the final protocol](experiments/public-18-tuned/protocol.json) before the rerun. There is one configuration per algorithm for all 18 instances. We did not choose settings per benchmark or retune after seeing final results. The earlier benchmark findings were already known, so this is an exploratory extension rather than a claim of a never-before-seen test set.
+
+### Tuned versus untuned at the same final evaluation budget
+
+The tuned campaign completed **1,440 runs and 14,400,000 candidate evaluations with zero failures**. Every best schedule was validated, every evaluation history matched its telemetry, and all summary statistics were recomputed. The 1.92 million pilot evaluations are additional tuning cost; the tuned workflow therefore used **16.32 million evaluations including tuning**, compared with 14.4 million for the untuned final campaign.
+
+| Algorithm | Untuned mean RPD | Pilot-selected mean RPD | Reduction (percentage points) | BKS hits: untuned → selected (of 360) |
+| --- | ---: | ---: | ---: | ---: |
+| GA | 5.48% | 5.48% | 0.00 | 109 → 109 |
+| DPSO | 6.78% | 5.63% | 1.15 | 95 → 108 |
+| ACO | 15.68% | 15.31% | 0.38 | 0 → 0 |
+| SA | 3.62% | 3.36% | 0.26 | 130 → 127 |
+
+The average-RPD order with the pilot-selected settings is **SA → GA → DPSO → ACO**, best to worst. Negative reductions in the table would mean that the selected setting transferred poorly to the benchmark set; such results are retained rather than replaced.
+
+Each cell below is **untuned mean RPD → pilot-selected mean RPD** over the same 20 seeds. Full makespan means, medians, best results, sample standard deviations and runtime measurements remain in the [selected-setting summary](experiments/public-18-tuned/summary.csv).
+
+| Instance | GA RPD (%) | DPSO RPD (%) | ACO RPD (%) | SA RPD (%) |
+| --- | ---: | ---: | ---: | ---: |
+| ft06 | 0.91 → 0.91 | 0.00 → 0.00 | 7.27 → 7.64 | 0.00 → 0.00 |
+| ft10 | 9.78 → 9.78 | 10.17 → 9.19 | 18.03 → 18.80 | 9.13 → 6.89 |
+| ft20 | 11.27 → 11.27 | 14.12 → 13.47 | 14.11 → 13.32 | 7.08 → 7.23 |
+| la01 | 0.26 → 0.26 | 0.60 → 0.07 | 9.88 → 10.10 | 0.00 → 0.00 |
+| la02 | 3.42 → 3.42 | 6.85 → 5.25 | 11.62 → 12.47 | 2.53 → 2.52 |
+| la06 | 0.00 → 0.00 | 0.00 → 0.00 | 5.68 → 3.53 | 0.00 → 0.00 |
+| la07 | 0.15 → 0.15 | 0.61 → 0.24 | 5.06 → 6.94 | 0.00 → 0.00 |
+| la11 | 0.00 → 0.00 | 0.00 → 0.00 | 5.93 → 4.64 | 0.00 → 0.00 |
+| la12 | 0.00 → 0.00 | 0.00 → 0.00 | 8.13 → 7.16 | 0.00 → 0.00 |
+| la16 | 4.35 → 4.35 | 4.35 → 3.70 | 11.98 → 12.88 | 3.69 → 3.24 |
+| la17 | 2.93 → 2.93 | 3.80 → 2.61 | 14.00 → 14.39 | 0.75 → 1.14 |
+| la21 | 11.62 → 11.62 | 15.20 → 12.07 | 24.04 → 23.63 | 8.24 → 8.06 |
+| la22 | 12.23 → 12.23 | 15.13 → 12.82 | 29.40 → 30.16 | 8.08 → 7.51 |
+| la26 | 10.85 → 10.85 | 13.67 → 10.88 | 28.70 → 26.28 | 6.85 → 6.54 |
+| la27 | 14.27 → 14.27 | 16.03 → 13.75 | 28.61 → 27.48 | 9.12 → 8.60 |
+| la31 | 2.74 → 2.74 | 4.03 → 2.86 | 16.45 → 14.05 | 0.84 → 0.74 |
+| la32 | 4.42 → 4.42 | 5.80 → 4.41 | 18.11 → 16.57 | 1.77 → 1.60 |
+| la36 | 9.38 → 9.38 | 11.70 → 9.98 | 25.31 → 25.50 | 7.05 → 6.47 |
+
+Changed settings can change the random choices made within a run. Matching seed numbers therefore does not imply identical search paths or guarantee improvement. GA is a useful control because its selected parameters are unchanged; its final outcomes were checked against the untuned GA campaign.
+
+### Significance of the tuning changes
+
+The statistical unit remains **18 paired instance means**, each averaging 20 seeds. Four two-sided exact Wilcoxon tests compare selected versus untuned mean RPD, one test per algorithm. Holm correction covers this four-test family at 5%. Zero changes are discarded; an all-zero comparison returns p=1. These tests assume symmetric paired differences under the no-change claim.
+
+| Algorithm | Improved / tied / worse instance means | Median RPD reduction (points) | Holm p for tuning change | Significant at 5%? |
+| --- | --- | ---: | ---: | --- |
+| GA | 0 / 18 / 0 | 0.00 | 1.00000000 | No |
+| DPSO | 14 / 4 / 0 | 1.07 | 0.00048828 | Yes |
+| ACO | 9 / 0 / 9 | 0.11 | 0.45750427 | No |
+| SA | 10 / 6 / 2 | 0.06 | 0.06298828 | No |
+
+At this threshold the corrected tests support an improvement for **DPSO only**. It improves 14 instance means and ties the other four. SA has a smaller mean RPD but its adjusted p-value is 0.06299, so the evidence is insufficient to call its improvement significant at 5%. ACO improves nine instance means and worsens nine, giving little evidence of a consistent gain. GA is unchanged because its original configuration won the pilot search.
+
+SA also reaches BKS in fewer individual runs (127 versus 130) despite its lower average RPD. Better average quality and more optimum hits are different criteria; neither implies the other.
+
+### Comparisons between algorithms after pilot selection
+
+The same Friedman and six Wilcoxon/Holm algorithm-pair comparisons used earlier are repeated for the selected settings. This six-pair family is corrected separately from the four tuning-change tests.
+
+| Friedman result | Untuned at 10,000 | Pilot-selected at 10,000 |
+| --- | ---: | ---: |
+| Statistic (3 degrees of freedom) | 46.616766 | 44.281437 |
+| Approximate chi-square p | 4.19e-10 | 1.32e-09 |
+| Permutation p, 99,999 draws | 0.000010 | 0.000010 |
+| Kendall's W | 0.863 | 0.820 |
+
+| Pair | Holm p: untuned | Holm p: selected | Significant with selected settings? | Lower selected mean RPD |
+| --- | ---: | ---: | --- | --- |
+| GA vs DPSO | 0.00115967 | 0.80395508 | No | GA |
+| GA vs ACO | 0.00004578 | 0.00004578 | Yes | GA |
+| GA vs SA | 0.00018311 | 0.00018311 | Yes | SA |
+| DPSO vs ACO | 0.00006104 | 0.00006104 | Yes | DPSO |
+| DPSO vs SA | 0.00024414 | 0.00024414 | Yes | SA |
+| ACO vs SA | 0.00004578 | 0.00004578 | Yes | SA |
+
+After pilot selection, **GA versus DPSO is no longer significant** (adjusted p = 0.80396), although GA still has a slightly smaller overall mean RPD. The evidence does not support ranking one above the other for this sample. The other five algorithm-pair differences remain significant, with SA lower than GA, DPSO and ACO in the sample.
+
+A permutation p-value of 0.000010 is the smallest reportable value at 99,999 random draws, not an exact estimate of a smaller probability. A non-significant comparison does not establish equality. The table shows the evidence within each setting; crossing a significance threshold between settings is not itself a test of a change in the algorithm-to-algorithm gap.
+
+The candidate search used four pilot cases, three seeds and four configurations per method. Pilot winners can overfit this small selection. The final sample contains two benchmark families and was used in earlier project stages. Findings remain specific to these implementations and settings, and the Holm corrections apply within the stated test families. Runtime includes concurrent worker load and reporting; no isolated speed claim is made.
+
+### Evidence and reproduction
+
+- Pilot [plan](experiments/pilot-tuning/plan.json), [trials](experiments/pilot-tuning/trials.csv), [configuration scores](experiments/pilot-tuning/scores.csv), [selection record](experiments/pilot-tuning/selection.json), and [chosen overrides](experiments/pilot-tuning/parameters.json).
+- Final [protocol](experiments/public-18-tuned/protocol.json), [per-seed results](experiments/public-18-tuned/runs.csv), [summary](experiments/public-18-tuned/summary.csv), and [audit](experiments/public-18-tuned/audit.json).
+- [Statistical results](experiments/public-18-tuned/statistics.json), [paired inputs](experiments/public-18-tuned/statistics-blocks.csv), [tuning comparison](experiments/public-18-tuned/tuning-comparison.json), and [per-instance changes](experiments/public-18-tuned/tuning-comparison.csv).
+- [All final schedules](experiments/public-18-tuned/solutions.jsonl.gz), [best-run histories](experiments/public-18-tuned/best-runs.json.gz), and [convergence checkpoints](experiments/public-18-tuned/convergence.csv).
+
+Raw pilot output remains in `results/pilot-tuning`; raw final output and live/final HTML reports are in `results/public-18-tuned`. Existing output directories are protected; use `--resume` after an interruption or choose new output paths for a fresh run.
+
+```sh
+python3 scripts/tune_pilots.py --output results/pilot-tuning --workers 4
+python3 scripts/run_partitioned_experiment.py --protocol experiments/public-18-tuned/protocol.json --output results/public-18-tuned --workers 4
+python3 scripts/audit_public_results.py results/public-18-tuned experiments/public-18-tuned
+uv run --python 3.14 --with-requirements requirements-statistics.txt python scripts/analyze_public_results.py experiments/public-18-tuned
+uv run --python 3.14 --with-requirements requirements-statistics.txt python scripts/compare_public_budgets.py --baseline experiments/public-18-10000 --candidate experiments/public-18-tuned --tuning
+```
+
+Pilot selection produces `parameters.json`; the final protocol stores a copy of its chosen values and the selection hash. If deliberately running a new tuning search, freeze a new final protocol from those new choices before evaluating the benchmark set. The existing protocols are records of the reported experiments.
