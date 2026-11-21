@@ -1,0 +1,151 @@
+{
+  "alpha": 0.05,
+  "unit": "One instance; mean over its 20 seeds for each algorithm",
+  "instances": [
+    "ft06",
+    "ft10",
+    "ft20",
+    "la01",
+    "la02",
+    "la06",
+    "la07",
+    "la11",
+    "la12",
+    "la16",
+    "la17",
+    "la21",
+    "la22",
+    "la26",
+    "la27",
+    "la31",
+    "la32",
+    "la36"
+  ],
+  "algorithms": [
+    "ga",
+    "dpso",
+    "aco",
+    "sa"
+  ],
+  "seeds_per_algorithm": 20,
+  "metric": "Mean RPD (% above BKS); Friedman ranks are equivalent to ranking mean makespan",
+  "test_plan": "Exploratory analysis after the benchmark results; all six two-sided pairs, Holm family-wise correction",
+  "friedman": {
+    "statistic": 46.616766467065865,
+    "degrees_of_freedom": 3,
+    "chi_square_pvalue": 4.1931692251179637e-10,
+    "permutation_pvalue": 1e-05,
+    "permutation_draws": 99999,
+    "permutation_seed": 20261121,
+    "exceedances": 0,
+    "monte_carlo_resolution": 1e-05,
+    "tie_correction": 0.9277777777777778,
+    "kendalls_w": 0.8632734530938123
+  },
+  "mean_ranks": {
+    "ga": 2.111111111111111,
+    "dpso": 2.75,
+    "aco": 3.9444444444444446,
+    "sa": 1.1944444444444444
+  },
+  "posthoc": [
+    {
+      "algorithm_a": "ga",
+      "algorithm_b": "dpso",
+      "statistic": 7.0,
+      "pvalue": 0.00115966796875,
+      "nonzero_pairs": 15,
+      "sign_assignments": 32768,
+      "a_better": 13,
+      "ties": 3,
+      "b_better": 2,
+      "median_rpd_difference_a_minus_b_pp": -1.0796936487599524,
+      "holm_pvalue": 0.00115966796875,
+      "significant_at_0_05": true
+    },
+    {
+      "algorithm_a": "ga",
+      "algorithm_b": "aco",
+      "statistic": 0.0,
+      "pvalue": 7.62939453125e-06,
+      "nonzero_pairs": 18,
+      "sign_assignments": 262144,
+      "a_better": 18,
+      "ties": 0,
+      "b_better": 0,
+      "median_rpd_difference_a_minus_b_pp": -8.934902644580063,
+      "holm_pvalue": 4.57763671875e-05,
+      "significant_at_0_05": true
+    },
+    {
+      "algorithm_a": "ga",
+      "algorithm_b": "sa",
+      "statistic": 0.0,
+      "pvalue": 6.103515625e-05,
+      "nonzero_pairs": 15,
+      "sign_assignments": 32768,
+      "a_better": 0,
+      "ties": 3,
+      "b_better": 15,
+      "median_rpd_difference_a_minus_b_pp": 1.4074602527517326,
+      "holm_pvalue": 0.00018310546875,
+      "significant_at_0_05": true
+    },
+    {
+      "algorithm_a": "dpso",
+      "algorithm_b": "aco",
+      "statistic": 1.0,
+      "pvalue": 1.52587890625e-05,
+      "nonzero_pairs": 18,
+      "sign_assignments": 262144,
+      "a_better": 17,
+      "ties": 0,
+      "b_better": 1,
+      "median_rpd_difference_a_minus_b_pp": -8.485626070810108,
+      "holm_pvalue": 6.103515625e-05,
+      "significant_at_0_05": true
+    },
+    {
+      "algorithm_a": "dpso",
+      "algorithm_b": "sa",
+      "statistic": 0.0,
+      "pvalue": 0.0001220703125,
+      "nonzero_pairs": 14,
+      "sign_assignments": 16384,
+      "a_better": 0,
+      "ties": 4,
+      "b_better": 14,
+      "median_rpd_difference_a_minus_b_pp": 3.1231696714560266,
+      "holm_pvalue": 0.000244140625,
+      "significant_at_0_05": true
+    },
+    {
+      "algorithm_a": "aco",
+      "algorithm_b": "sa",
+      "statistic": 0.0,
+      "pvalue": 7.62939453125e-06,
+      "nonzero_pairs": 18,
+      "sign_assignments": 262144,
+      "a_better": 0,
+      "ties": 0,
+      "b_better": 18,
+      "median_rpd_difference_a_minus_b_pp": 9.481924672764368,
+      "holm_pvalue": 4.57763671875e-05,
+      "significant_at_0_05": true
+    }
+  ],
+  "wilcoxon_method": "Exact sign permutations of nonzero paired RPD differences; average ranks for ties; zeros discarded",
+  "assumptions": "Instances treated as independent blocks; exchangeable algorithm labels under omnibus null; symmetric paired differences for Wilcoxon",
+  "limitations": "Selected instances from two families; untuned defaults and 10000 evaluations; no universal algorithm claim; Monte Carlo omnibus p-value has finite resolution",
+  "input_sha256": {
+    "runs.csv": "72322b987e6b62036221fae029ee5deb905f04d26138f1d905aa4e984fe94e20",
+    "protocol.json": "df0fb9dbd41663695dede7ccb74827f294ea27afa2387e0984e4f5cc4abdb310",
+    "metadata.json": "2210787132e1383ba322a6f97a7fa8b2fb66f7339f70bf3a5ae8d4860d17606e",
+    "audit.json": "02c10fb220e5ce2f87ad735c928955bbd40226318feb9f952a76779573264f87"
+  },
+  "software": {
+    "python": "3.14.3",
+    "numpy": "2.4.2",
+    "scipy": "1.17.0"
+  }
+}
