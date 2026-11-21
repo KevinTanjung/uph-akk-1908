@@ -191,6 +191,8 @@ The budget is 1,000 evaluations per run and the parameters were not tuned. The s
 
 ## Are the differences statistically significant?
 
+This section covers the original **1,000-evaluation** campaign. The later section compares it with the 10,000-evaluation repeat.
+
 **Yes, for these 18 benchmark instances and these settings, all six algorithm pairs differ significantly after correcting for multiple comparisons.** The results favor SA over GA, GA over DPSO, and DPSO over ACO. This supports the observed ordering across the sample; it does not mean each algorithm wins on every instance.
 
 This follows the statistical comparison proposed in section IV.C of the supplied proposal. One **instance** is one paired observation. For each algorithm we average its 20 seed results on that instance, giving 18 observations per algorithm. The 360 runs per algorithm are not treated as 360 independent benchmark cases. Tests concern solution quality, not runtime or seed-to-seed variability.
@@ -242,3 +244,105 @@ uv run --python 3.14 --with-requirements requirements-statistics.txt python -m u
 ```
 
 The analysis environment ran **13 passing tests**, including known Holm results, exact signed-rank cases with zeros and ties, Friedman tie correction, and rejection of changed or incomplete run data. All six observed pairwise p-values were also cross-checked against SciPy's separate exact Wilcoxon distribution calculation; their nonzero absolute differences have no ties.
+
+## 10,000 evaluations compared with 1,000
+
+The repeat uses the same 18 public instances, BKS values, four algorithms, seeds 0–19 and default parameters. Each run now receives **10,000 candidate evaluations**. This follows the proposal's sections III–IV: a common decoder and validator, equal evaluation budgets, repeated seeds and comparison of makespan and RPD. The SA temperature and cooling rate are unchanged, so this measures a longer run with the existing schedule, rather than a retuned algorithm.
+
+All **1,440 runs** completed with **zero failures**, using **14,400,000 candidate evaluations**. All saved best schedules passed validation, and all telemetry records matched their run histories. The comparison also checked **1,440,000 shared candidate evaluations**: every new run's first 1,000 current and best makespans exactly match its original run. This verifies that the caching and execution changes preserved the shared search prefixes.
+
+The larger campaign ran independent instances in four Python processes. It was interrupted and resumed from completed run files; completed searches were reused, and partial-run telemetry was preserved separately before rebuilding the final logs. The initial sequential attempt was preserved locally and excluded from this final campaign. Source revisions and partition details are recorded in [metadata.json](experiments/public-18-10000/metadata.json). Per-run observed runtimes include worker contention, report work and the implementation caches, so they do not support an isolated speed comparison with the sequential 1,000-evaluation run.
+
+### Quality and optimum hits
+
+RPD is the percentage above the verified optimum; lower is better. Each instance has equal weight. A drop is measured in percentage points of RPD. Optimum hits count individual seeded runs out of 360 for each algorithm.
+
+| Algorithm | Mean RPD at 1,000 | Mean RPD at 10,000 | Drop in RPD (points) | BKS hits at 1,000 | BKS hits at 10,000 |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| GA | 8.60% | 5.48% | 3.12 | 65 | 109 |
+| DPSO | 9.18% | 6.78% | 2.40 | 71 | 95 |
+| ACO | 16.61% | 15.68% | 0.92 | 0 | 0 |
+| SA | 6.88% | 3.62% | 3.26 | 97 | 130 |
+
+At 10,000 evaluations the average-RPD order is **SA → GA → DPSO → ACO** (best to worst). This is the same order as at 1,000 evaluations.
+
+Each cell below shows **mean RPD at 1,000 → mean RPD at 10,000**, averaged over the same 20 seeds. Full makespan means, best values, medians, sample standard deviations and runtimes are in the [10,000-evaluation summary](experiments/public-18-10000/summary.csv); the [per-instance budget comparison](experiments/public-18-10000/budget-comparison.csv) keeps the unrounded RPD changes.
+
+| Instance | GA RPD (%) | DPSO RPD (%) | ACO RPD (%) | SA RPD (%) |
+| --- | ---: | ---: | ---: | ---: |
+| ft06 | 2.82 → 0.91 | 0.82 → 0.00 | 7.64 → 7.27 | 1.00 → 0.00 |
+| ft10 | 14.73 → 9.78 | 15.31 → 10.17 | 19.08 → 18.03 | 13.27 → 9.13 |
+| ft20 | 16.54 → 11.27 | 18.41 → 14.12 | 15.98 → 14.11 | 13.12 → 7.08 |
+| la01 | 3.38 → 0.26 | 3.00 → 0.60 | 12.55 → 9.88 | 1.23 → 0.00 |
+| la02 | 8.77 → 3.42 | 11.30 → 6.85 | 12.82 → 11.62 | 6.92 → 2.53 |
+| la06 | 0.00 → 0.00 | 0.00 → 0.00 | 5.90 → 5.68 | 0.00 → 0.00 |
+| la07 | 1.97 → 0.15 | 2.51 → 0.61 | 8.16 → 5.06 | 0.47 → 0.00 |
+| la11 | 0.00 → 0.00 | 0.01 → 0.00 | 6.09 → 5.93 | 0.00 → 0.00 |
+| la12 | 0.17 → 0.00 | 0.26 → 0.00 | 8.97 → 8.13 | 0.10 → 0.00 |
+| la16 | 6.55 → 4.35 | 7.08 → 4.35 | 12.62 → 11.98 | 5.10 → 3.69 |
+| la17 | 6.02 → 2.93 | 6.77 → 3.80 | 14.93 → 14.00 | 4.57 → 0.75 |
+| la21 | 17.20 → 11.62 | 17.96 → 15.20 | 25.23 → 24.04 | 15.27 → 8.24 |
+| la22 | 17.87 → 12.23 | 19.07 → 15.13 | 31.04 → 29.40 | 15.04 → 8.08 |
+| la26 | 14.95 → 10.85 | 16.05 → 13.67 | 29.18 → 28.70 | 11.41 → 6.85 |
+| la27 | 17.67 → 14.27 | 18.88 → 16.03 | 28.61 → 28.61 | 14.91 → 9.12 |
+| la31 | 5.61 → 2.74 | 5.96 → 4.03 | 16.53 → 16.45 | 3.60 → 0.84 |
+| la32 | 6.89 → 4.42 | 7.62 → 5.80 | 18.22 → 18.11 | 5.64 → 1.77 |
+| la36 | 13.60 → 9.38 | 14.21 → 11.70 | 25.41 → 25.31 | 12.21 → 7.05 |
+
+### Do the significance findings change?
+
+The methods remain the same: each of the 18 instances contributes one mean over its 20 seeds. Friedman compares the four within-instance ranks, with a 99,999-draw permutation check. All six two-sided Wilcoxon comparisons use paired mean RPD differences and Holm correction as one family at each budget. The threshold is 5%. These are the same methods described in the 1,000-evaluation section above.
+
+| Friedman result | 1,000 evaluations | 10,000 evaluations |
+| --- | ---: | ---: |
+| Statistic (3 degrees of freedom) | 44.691429 | 46.616766 |
+| Approximate chi-square p-value | 1.08e-09 | 4.19e-10 |
+| Permutation p-value | 0.000010 | 0.000010 |
+| Kendall's W (rank agreement) | 0.828 | 0.863 |
+
+At 10,000 evaluations, **0 of 99,999** shuffled statistics were at least as large as observed. The Monte Carlo p-value uses the plus-one correction; its minimum reportable value is 0.000010. This finite-resolution estimate does not show how much smaller the underlying p-value may be.
+
+| Pair | Holm p at 1,000 | Holm p at 10,000 | Significant at 10,000? | Lower mean RPD at 10,000 |
+| --- | ---: | ---: | --- | --- |
+| GA vs DPSO | 0.00556946 | 0.00115967 | Yes | GA |
+| GA vs ACO | 0.00007629 | 0.00004578 | Yes | GA |
+| GA vs SA | 0.00009155 | 0.00018311 | Yes | SA |
+| DPSO vs ACO | 0.00009155 | 0.00006104 | Yes | DPSO |
+| DPSO vs SA | 0.00015259 | 0.00024414 | Yes | SA |
+| ACO vs SA | 0.00004578 | 0.00004578 | Yes | SA |
+
+At the larger budget, **6 of the six pairwise comparisons** pass the corrected 5% threshold. The table reports which differences the tests support at each budget. A change in significance is not itself a test of whether an algorithm-to-algorithm gap changed.
+
+### How consistently does the extra budget help?
+
+For each algorithm, a supplementary two-sided exact Wilcoxon test compares the 18 paired instance mean RPD values between budgets. Holm correction covers these four budget-change tests together, separately from the six algorithm-pair tests. The analysis plan was recorded before the full 10,000-evaluation results were complete, with the earlier results already known; this remains exploratory evidence.
+
+| Algorithm | Improved / tied / worse instances | Median RPD drop (points) | Holm p for budget change | Significant at 5%? |
+| --- | --- | ---: | ---: | --- |
+| GA | 16 / 2 / 0 | 3.10 | 0.00006104 | Yes |
+| DPSO | 17 / 1 / 0 | 2.45 | 0.00006104 | Yes |
+| ACO | 17 / 1 / 0 | 0.74 | 0.00006104 | Yes |
+| SA | 16 / 2 / 0 | 3.85 | 0.00006104 | Yes |
+
+The budgets share the same search paths. Because the answer is the best schedule seen so far, a longer run cannot worsen an individual matched result. The non-worsening pattern is therefore guaranteed by construction, and the supplementary p-values are not an independent replication of that fact. The size of the RPD drops and the counts reaching BKS show the practical benefit within this sample.
+
+These findings apply to the two selected benchmark families, these implementations, unchanged defaults and the two evaluation budgets. They do not establish a universal winner, prove optimality of heuristic outputs, or show how the algorithms would compare after balanced parameter tuning.
+
+### Evidence and reproduction
+
+- [Frozen 10,000-evaluation protocol](experiments/public-18-10000/protocol.json).
+- [All 1,440 seeded outcomes](experiments/public-18-10000/runs.csv) and [summary statistics](experiments/public-18-10000/summary.csv).
+- [Audit record and raw-file hashes](experiments/public-18-10000/audit.json).
+- [Convergence checkpoints](experiments/public-18-10000/convergence.csv), [all validated schedules](experiments/public-18-10000/solutions.jsonl.gz), and [72 best-run histories](experiments/public-18-10000/best-runs.json.gz).
+- [Friedman and post-hoc results](experiments/public-18-10000/statistics.json), [paired analysis inputs](experiments/public-18-10000/statistics-blocks.csv), and [budget comparisons with prefix verification](experiments/public-18-10000/budget-comparison.json).
+
+The full raw output and HTML report remain local under `results/public-18-10000`; the `parts` directory preserves each worker's original output. Compact evidence is committed on `main`. To run again into a new output directory and rebuild the analysis:
+
+```sh
+python3 scripts/run_partitioned_experiment.py --protocol experiments/public-18-10000/protocol.json --output results/public-18-10000 --workers 4
+python3 scripts/audit_public_results.py results/public-18-10000 experiments/public-18-10000
+uv run --python 3.14 --with-requirements requirements-statistics.txt python scripts/analyze_public_results.py experiments/public-18-10000
+uv run --python 3.14 --with-requirements requirements-statistics.txt python scripts/compare_public_budgets.py
+```
+
+If a campaign is interrupted, repeat the first command with `--resume`. Completed run files are checked and reused; only missing runs are computed. The prefix comparison requires the full local raw output from both budgets. All committed summaries and statistical inputs can be inspected without those raw files. The original 1,000-evaluation reproduction commands remain above.
