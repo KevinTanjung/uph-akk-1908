@@ -48,6 +48,7 @@ def main(argv=None):
     if not isinstance(params,dict) or set(params)-{'ga','dpso','aco','sa'}: parser.error('invalid parameter file')
     metadata['parameter_overrides']=params
     runs=[];summaries=[];baselines=[];failures=0
+    last_report=perf_counter()
     print(f'Report: {output.resolve()/"report.html"}',flush=True)
     write_report(output/'report.html',runs,True)
     with (output/'telemetry.jsonl').open('w') as telemetry, (output/'failures.jsonl').open('w') as errors:
@@ -64,14 +65,18 @@ def main(argv=None):
                 for seed in range(args.seed,args.seed+args.repeats):
                     run_id=f'{index}-{alg}-{seed}';last_refresh=[0.];partial=[]
                     def progress(event):
+                        nonlocal last_report
                         best_sequence=event.pop('best_sequence')
                         telemetry.write(json.dumps(dict(run_id=run_id,instance=inst.name,algorithm=alg,seed=seed,**event))+'\n');telemetry.flush()
                         partial.append(event)
                         if event['evaluation']==1 or event['evaluation']==args.budget or perf_counter()-last_refresh[0]>.5:
                             if not args.quiet:
                                 print(f'{inst.name} {alg.upper()} seed={seed} evaluations={event["evaluation"]}/{args.budget} best={event["best"]}',flush=True)
-                            preview=dict(instance=inst.name,algorithm=alg,seed=seed,makespan=event['best'],rpd=None,runtime_seconds=event['elapsed_seconds'],history=partial,budget=args.budget,schedule=decode(inst,best_sequence)[1])
-                            write_report(output/'report.html',runs+[preview],True);last_refresh[0]=perf_counter()
+                            last_refresh[0]=perf_counter()
+                        if perf_counter()-last_report >= 2:
+                            preview=dict(instance=inst.name,algorithm=alg,seed=seed,input_index=index,makespan=event['best'],rpd=None,runtime_seconds=event['elapsed_seconds'],history=partial,budget=args.budget,schedule=decode(inst,best_sequence)[1])
+                            write_report(output/'report.html',runs+[preview],True)
+                            last_report=perf_counter()
                     try:
                         result=solve(inst,alg,args.budget,seed,progress,**params.get(alg,{}))
                         result.update(instance=inst.name,run_id=run_id,input_index=index)
@@ -83,7 +88,9 @@ def main(argv=None):
                     except Exception as exc:
                         failures+=1;errors.write(json.dumps(dict(run_id=run_id,input=path,error=str(exc),traceback=traceback.format_exc()))+'\n');errors.flush()
                     write_csv(output/'runs.csv',summaries)
-                    write_report(output/'report.html',runs,True)
+                    if perf_counter()-last_report >= 2:
+                        write_report(output/'report.html',runs,True)
+                        last_report=perf_counter()
     aggregates=[]
     for index in range(len(args.instances)):
         for alg in args.algorithms:

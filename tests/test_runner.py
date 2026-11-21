@@ -15,6 +15,7 @@ class RunnerTests(unittest.TestCase):
             self.assertEqual(len(events),24)
             self.assertEqual(len({e['run_id'] for e in events}),8)
             self.assertIn('&lt;case&gt;', (output/'report.html').read_text())
+            self.assertEqual((output/'report.html').read_text().count('Gantt chart</title>'),4)
             self.assertNotIn('http-equiv="refresh"',(output/'report.html').read_text())
             self.assertEqual(json.loads((output/'metadata.json').read_text())['failures'],0)
             self.assertEqual((output/'failures.jsonl').read_text(),'')

@@ -21,12 +21,24 @@ def write_report(path, runs, running=False):
     for r in runs:
         parts.append('<tr>'+''.join('<td>'+esc(v)+'</td>' for v in [r['instance'],r['algorithm'],r['seed'],r['makespan'],'' if r['rpd'] is None else round(r['rpd'],2),round(r['runtime_seconds'],4),len(r['history'])])+'</tr>')
     parts.append('</table>')
+    selected = {}
     for r in runs:
+        key = (r.get('input_index', r['instance']), r['algorithm'])
+        if key not in selected or r['makespan'] < selected[key]['makespan']:
+            selected[key] = r
+    charts = list(selected.values())
+    if running and runs and all(r is not runs[-1] for r in charts):
+        charts.append(runs[-1])
+    parts.append('<h2>Best run for each instance and algorithm</h2><p>All seeds appear in the table. Charts show the best run in each group and the active run during execution. Full histories are saved in run JSON files.</p>')
+    for r in charts:
         label=f"{r['instance']} / {r['algorithm'].upper()} / seed {r['seed']}"
         history=r['history']
+        step=max(1, (len(history)+199)//200)
+        sampled=history[::step]
+        if sampled[-1] is not history[-1]: sampled.append(history[-1])
         maximum=max(row['current'] for row in history)
         width,height=1050,250
-        points=lambda key:' '.join(f"{60+940*(row['evaluation']-1)/max(1,r['budget']-1):.1f},{210-170*row[key]/maximum:.1f}" for row in history)
+        points=lambda key:' '.join(f"{60+940*(row['evaluation']-1)/max(1,r['budget']-1):.1f},{210-170*row[key]/maximum:.1f}" for row in sampled)
         parts += ['<section><h2>'+esc(label)+'</h2>',
                   '<h3>Search progress</h3><p>Horizontal: candidate evaluations. Vertical: makespan. Gray: current candidate. Blue: best found.</p>',
                   f'<svg viewBox="0 0 {width} {height}" role="img" aria-label="{esc(label)} convergence"><title>{esc(label)} convergence</title>',
