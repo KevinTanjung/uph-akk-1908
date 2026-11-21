@@ -1,0 +1,1214 @@
+{
+  "verified_date": "2026-11-21",
+  "sources": {
+    "jobshop1.txt": {
+      "url": "https://people.brunel.ac.uk/~mastjjb/jeb/orlib/files/jobshop1.txt",
+      "sha256": "7f36d103332f94cfdeb76358e40927a57cfa7a426ebeaabd4de666350c69f028"
+    },
+    "jsplib/instances.json": {
+      "url": "https://raw.githubusercontent.com/tamy0612/JSPLIB/eea2b60dd7e2f5c907ff7302662c61812eb7efdf/instances.json",
+      "sha256": "4abd54035bc7762ec96b81527f49ca372031466911408d66ff12762fe7882c97"
+    },
+    "scheduleopt-bks.json": {
+      "url": "https://raw.githubusercontent.com/ScheduleOpt/benchmarks/824cf4d53117c6d64bb952c337ff73eacb363a5f/jobshop/solutions/bks.json",
+      "sha256": "ceccbc5419ffa6d9c3bc9e348e597994be0c88071f409232fd3e3a4e888d4128"
+    },
+    "jsplib/ft06": {
+      "url": "https://raw.githubusercontent.com/tamy0612/JSPLIB/eea2b60dd7e2f5c907ff7302662c61812eb7efdf/instances/ft06",
+      "sha256": "fee212360082ab31d7a6f375e352dad79973e17e70da40d14fcce5400a721a1c"
+    },
+    "jsplib/ft10": {
+      "url": "https://raw.githubusercontent.com/tamy0612/JSPLIB/eea2b60dd7e2f5c907ff7302662c61812eb7efdf/instances/ft10",
+      "sha256": "eff0a40841b2160661f64bfc94c77a3d02d3dcfdfab9c02bf39f7da1153891b7"
+    },
+    "jsplib/ft20": {
+      "url": "https://raw.githubusercontent.com/tamy0612/JSPLIB/eea2b60dd7e2f5c907ff7302662c61812eb7efdf/instances/ft20",
+      "sha256": "5702cbc10318b52ad728ee94ed6fb862387008246cebb5d9cf9661f41f3ca7a9"
+    },
+    "jsplib/la01": {
+      "url": "https://raw.githubusercontent.com/tamy0612/JSPLIB/eea2b60dd7e2f5c907ff7302662c61812eb7efdf/instances/la01",
+      "sha256": "37a1de180c912680b8a6ea4c7c86f5e273c79b47ba55720c824b1fd93d3457bc"
+    },
+    "jsplib/la02": {
+      "url": "https://raw.githubusercontent.com/tamy0612/JSPLIB/eea2b60dd7e2f5c907ff7302662c61812eb7efdf/instances/la02",
+      "sha256": "dc608b07a2ce9f3e1991532d219461733c40a9265579f2d5207f232dfd7c3080"
+    },
+    "jsplib/la06": {
+      "url": "https://raw.githubusercontent.com/tamy0612/JSPLIB/eea2b60dd7e2f5c907ff7302662c61812eb7efdf/instances/la06",
+      "sha256": "5b717141d149fe65a1957c7c7637eb486e54ee52faf5a4487ae08bdcf4398c7b"
+    },
+    "jsplib/la07": {
+      "url": "https://raw.githubusercontent.com/tamy0612/JSPLIB/eea2b60dd7e2f5c907ff7302662c61812eb7efdf/instances/la07",
+      "sha256": "38ccd5252f16aada8d4aa6d987e7d042282c538cc88aa7960f6072fb3b4cf39c"
+    },
+    "jsplib/la11": {
+      "url": "https://raw.githubusercontent.com/tamy0612/JSPLIB/eea2b60dd7e2f5c907ff7302662c61812eb7efdf/instances/la11",
+      "sha256": "9cc1593347a2b69fc0936089b4442cd9702f81d8e833968177fe050f19a5c97f"
+    },
+    "jsplib/la12": {
+      "url": "https://raw.githubusercontent.com/tamy0612/JSPLIB/eea2b60dd7e2f5c907ff7302662c61812eb7efdf/instances/la12",
+      "sha256": "09ee87443279a807d3967d877b72188a4749c25f1cb41c593b512ecea6532799"
+    },
+    "jsplib/la16": {
+      "url": "https://raw.githubusercontent.com/tamy0612/JSPLIB/eea2b60dd7e2f5c907ff7302662c61812eb7efdf/instances/la16",
+      "sha256": "30b4c4ef875c9847ea29bd6c42a2ba58f7e7bda58c3d7736a6efd4df58669483"
+    },
+    "jsplib/la17": {
+      "url": "https://raw.githubusercontent.com/tamy0612/JSPLIB/eea2b60dd7e2f5c907ff7302662c61812eb7efdf/instances/la17",
+      "sha256": "a7f95f12b59e4613b9c7153254cd4a51670c66ffcd1cbf0e39e8cbd57b68f891"
+    },
+    "jsplib/la21": {
+      "url": "https://raw.githubusercontent.com/tamy0612/JSPLIB/eea2b60dd7e2f5c907ff7302662c61812eb7efdf/instances/la21",
+      "sha256": "28b9ed55089bb38b58d7d936c96f599ebd234a4952cd2d18437d64f2341a179a"
+    },
+    "jsplib/la22": {
+      "url": "https://raw.githubusercontent.com/tamy0612/JSPLIB/eea2b60dd7e2f5c907ff7302662c61812eb7efdf/instances/la22",
+      "sha256": "ff7ea727ceb0d2563b64344d46bcb96d57c46611547154221975fbd8f55cd853"
+    },
+    "jsplib/la26": {
+      "url": "https://raw.githubusercontent.com/tamy0612/JSPLIB/eea2b60dd7e2f5c907ff7302662c61812eb7efdf/instances/la26",
+      "sha256": "71c06a72926fc88949d020d724ca234ae4a6221e6457f068e85010ff3a8ef592"
+    },
+    "jsplib/la27": {
+      "url": "https://raw.githubusercontent.com/tamy0612/JSPLIB/eea2b60dd7e2f5c907ff7302662c61812eb7efdf/instances/la27",
+      "sha256": "1666c4a09bb0be1d6d861479f17ef8bae3e474bd7ad39a87386fa6873b9aae27"
+    },
+    "jsplib/la31": {
+      "url": "https://raw.githubusercontent.com/tamy0612/JSPLIB/eea2b60dd7e2f5c907ff7302662c61812eb7efdf/instances/la31",
+      "sha256": "e5d8ab714f5ade645c21b004ebd8597f4221c467dee20825c9d48d971d3ce1cc"
+    },
+    "jsplib/la32": {
+      "url": "https://raw.githubusercontent.com/tamy0612/JSPLIB/eea2b60dd7e2f5c907ff7302662c61812eb7efdf/instances/la32",
+      "sha256": "6e7c007d26028ab2effa3a76d038d824cfa1b4156cc2d5b418084466b606cbdb"
+    },
+    "jsplib/la36": {
+      "url": "https://raw.githubusercontent.com/tamy0612/JSPLIB/eea2b60dd7e2f5c907ff7302662c61812eb7efdf/instances/la36",
+      "sha256": "3a92cd1f3eeba20c01da2958627049d5ab33d6d6c99381689627cc4cbb8a70b3"
+    }
+  },
+  "instances": [
+    {
+      "name": "ft06",
+      "jobs": 6,
+      "machines": 6,
+      "bks": 55,
+      "status": "optimum reported by both catalogues",
+      "jsplib": {
+        "name": "ft06",
+        "jobs": 6,
+        "machines": 6,
+        "optimum": 55,
+        "path": "instances/ft06"
+      },
+      "scheduleopt": {
+        "instance": "ft06",
+        "size": "6 x 6",
+        "family": "ft",
+        "family_long": "Fisher and Thompson 1963",
+        "type": "legacy",
+        "status": "closed",
+        "lower_bound": 55,
+        "upper_bound": 55,
+        "history": {
+          "lb": [
+            {
+              "value": 55,
+              "date": "2023-08-25",
+              "solver": "OptalCP",
+              "hardware": "Intel 11th Gen Core i7-1185G7",
+              "time": 1,
+              "certificate": "no"
+            },
+            {
+              "value": 55,
+              "date": "1971-01-01",
+              "solver": "FTM1971",
+              "hardware": null,
+              "time": null,
+              "certificate": "no"
+            }
+          ],
+          "ub": [
+            {
+              "value": 55,
+              "date": "2023-08-25",
+              "solver": "OptalCP",
+              "hardware": "Intel 11th Gen Core i7-1185G7",
+              "time": 1,
+              "certificate": "no"
+            },
+            {
+              "value": 55,
+              "date": "1971-01-01",
+              "solver": "FTM1971",
+              "hardware": null,
+              "time": null,
+              "certificate": "no"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "ft10",
+      "jobs": 10,
+      "machines": 10,
+      "bks": 930,
+      "status": "optimum reported by both catalogues",
+      "jsplib": {
+        "name": "ft10",
+        "jobs": 10,
+        "machines": 10,
+        "optimum": 930,
+        "path": "instances/ft10"
+      },
+      "scheduleopt": {
+        "instance": "ft10",
+        "size": "10 x 10",
+        "family": "ft",
+        "family_long": "Fisher and Thompson 1963",
+        "type": "legacy",
+        "status": "closed",
+        "lower_bound": 930,
+        "upper_bound": 930,
+        "history": {
+          "lb": [
+            {
+              "value": 930,
+              "date": "2023-08-25",
+              "solver": "OptalCP",
+              "hardware": "Intel 11th Gen Core i7-1185G7",
+              "time": 1,
+              "certificate": "no"
+            },
+            {
+              "value": 930,
+              "date": "1989-01-01",
+              "solver": "CP1989",
+              "hardware": null,
+              "time": null,
+              "certificate": "no"
+            }
+          ],
+          "ub": [
+            {
+              "value": 930,
+              "date": "2023-08-25",
+              "solver": "OptalCP",
+              "hardware": "Intel 11th Gen Core i7-1185G7",
+              "time": 1,
+              "certificate": "no"
+            },
+            {
+              "value": 930,
+              "date": "1984-01-01",
+              "solver": "Lageweg1984",
+              "hardware": null,
+              "time": null,
+              "certificate": "no"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "ft20",
+      "jobs": 20,
+      "machines": 5,
+      "bks": 1165,
+      "status": "optimum reported by both catalogues",
+      "jsplib": {
+        "name": "ft20",
+        "jobs": 20,
+        "machines": 5,
+        "optimum": 1165,
+        "path": "instances/ft20"
+      },
+      "scheduleopt": {
+        "instance": "ft20",
+        "size": "20 x 5",
+        "family": "ft",
+        "family_long": "Fisher and Thompson 1963",
+        "type": "legacy",
+        "status": "closed",
+        "lower_bound": 1165,
+        "upper_bound": 1165,
+        "history": {
+          "lb": [
+            {
+              "value": 1165,
+              "date": "2023-08-25",
+              "solver": "OptalCP",
+              "hardware": "Intel 11th Gen Core i7-1185G7",
+              "time": 1,
+              "certificate": "no"
+            },
+            {
+              "value": 1165,
+              "date": "1975-01-01",
+              "solver": "MF1975",
+              "hardware": null,
+              "time": null,
+              "certificate": "no"
+            }
+          ],
+          "ub": [
+            {
+              "value": 1165,
+              "date": "2023-08-25",
+              "solver": "OptalCP",
+              "hardware": "Intel 11th Gen Core i7-1185G7",
+              "time": 1,
+              "certificate": "no"
+            },
+            {
+              "value": 1165,
+              "date": "1975-01-01",
+              "solver": "MF1975",
+              "hardware": null,
+              "time": null,
+              "certificate": "no"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "la01",
+      "jobs": 10,
+      "machines": 5,
+      "bks": 666,
+      "status": "optimum reported by both catalogues",
+      "jsplib": {
+        "name": "la01",
+        "jobs": 10,
+        "machines": 5,
+        "optimum": 666,
+        "path": "instances/la01"
+      },
+      "scheduleopt": {
+        "instance": "la01",
+        "size": "10 x 5",
+        "family": "la",
+        "family_long": "Lawrence 1984",
+        "type": "legacy",
+        "status": "closed",
+        "lower_bound": 666,
+        "upper_bound": 666,
+        "history": {
+          "lb": [
+            {
+              "value": 666,
+              "date": "2023-08-25",
+              "solver": "OptalCP",
+              "hardware": "Intel 11th Gen Core i7-1185G7",
+              "time": 1,
+              "certificate": "machine load"
+            },
+            {
+              "value": 666,
+              "date": "1988-01-01",
+              "solver": "ABZ1988",
+              "hardware": null,
+              "time": null,
+              "certificate": "machine load"
+            }
+          ],
+          "ub": [
+            {
+              "value": 666,
+              "date": "2023-08-25",
+              "solver": "OptalCP",
+              "hardware": "Intel 11th Gen Core i7-1185G7",
+              "time": 1,
+              "certificate": "no"
+            },
+            {
+              "value": 666,
+              "date": "1988-01-01",
+              "solver": "ABZ1988",
+              "hardware": null,
+              "time": null,
+              "certificate": "no"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "la02",
+      "jobs": 10,
+      "machines": 5,
+      "bks": 655,
+      "status": "optimum reported by both catalogues",
+      "jsplib": {
+        "name": "la02",
+        "jobs": 10,
+        "machines": 5,
+        "optimum": 655,
+        "path": "instances/la02"
+      },
+      "scheduleopt": {
+        "instance": "la02",
+        "size": "10 x 5",
+        "family": "la",
+        "family_long": "Lawrence 1984",
+        "type": "legacy",
+        "status": "closed",
+        "lower_bound": 655,
+        "upper_bound": 655,
+        "history": {
+          "lb": [
+            {
+              "value": 655,
+              "date": "2023-08-25",
+              "solver": "OptalCP",
+              "hardware": "Intel 11th Gen Core i7-1185G7",
+              "time": 1,
+              "certificate": "machine load"
+            },
+            {
+              "value": 655,
+              "date": "1988-01-01",
+              "solver": "ABZ1988",
+              "hardware": null,
+              "time": null,
+              "certificate": "machine load"
+            }
+          ],
+          "ub": [
+            {
+              "value": 655,
+              "date": "2023-08-25",
+              "solver": "OptalCP",
+              "hardware": "Intel 11th Gen Core i7-1185G7",
+              "time": 1,
+              "certificate": "no"
+            },
+            {
+              "value": 655,
+              "date": "1988-01-01",
+              "solver": "MSS1988",
+              "hardware": null,
+              "time": null,
+              "certificate": "no"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "la06",
+      "jobs": 15,
+      "machines": 5,
+      "bks": 926,
+      "status": "optimum reported by both catalogues",
+      "jsplib": {
+        "name": "la06",
+        "jobs": 15,
+        "machines": 5,
+        "optimum": 926,
+        "path": "instances/la06"
+      },
+      "scheduleopt": {
+        "instance": "la06",
+        "size": "15 x 5",
+        "family": "la",
+        "family_long": "Lawrence 1984",
+        "type": "legacy",
+        "status": "closed",
+        "lower_bound": 926,
+        "upper_bound": 926,
+        "history": {
+          "lb": [
+            {
+              "value": 926,
+              "date": "2023-08-25",
+              "solver": "OptalCP",
+              "hardware": "Intel 11th Gen Core i7-1185G7",
+              "time": 1,
+              "certificate": "machine load"
+            },
+            {
+              "value": 926,
+              "date": "1988-01-01",
+              "solver": "ABZ1988",
+              "hardware": null,
+              "time": null,
+              "certificate": "machine load"
+            }
+          ],
+          "ub": [
+            {
+              "value": 926,
+              "date": "2023-08-25",
+              "solver": "OptalCP",
+              "hardware": "Intel 11th Gen Core i7-1185G7",
+              "time": 1,
+              "certificate": "no"
+            },
+            {
+              "value": 926,
+              "date": "1988-01-01",
+              "solver": "ABZ1988",
+              "hardware": null,
+              "time": null,
+              "certificate": "no"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "la07",
+      "jobs": 15,
+      "machines": 5,
+      "bks": 890,
+      "status": "optimum reported by both catalogues",
+      "jsplib": {
+        "name": "la07",
+        "jobs": 15,
+        "machines": 5,
+        "optimum": 890,
+        "path": "instances/la07"
+      },
+      "scheduleopt": {
+        "instance": "la07",
+        "size": "15 x 5",
+        "family": "la",
+        "family_long": "Lawrence 1984",
+        "type": "legacy",
+        "status": "closed",
+        "lower_bound": 890,
+        "upper_bound": 890,
+        "history": {
+          "lb": [
+            {
+              "value": 890,
+              "date": "2023-08-25",
+              "solver": "OptalCP",
+              "hardware": "Intel 11th Gen Core i7-1185G7",
+              "time": 1,
+              "certificate": "machine load"
+            },
+            {
+              "value": 890,
+              "date": "1988-01-01",
+              "solver": "ABZ1988",
+              "hardware": null,
+              "time": null,
+              "certificate": "machine load"
+            }
+          ],
+          "ub": [
+            {
+              "value": 890,
+              "date": "2023-08-25",
+              "solver": "OptalCP",
+              "hardware": "Intel 11th Gen Core i7-1185G7",
+              "time": 1,
+              "certificate": "no"
+            },
+            {
+              "value": 890,
+              "date": "1988-01-01",
+              "solver": "ABZ1988",
+              "hardware": null,
+              "time": null,
+              "certificate": "no"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "la11",
+      "jobs": 20,
+      "machines": 5,
+      "bks": 1222,
+      "status": "optimum reported by both catalogues",
+      "jsplib": {
+        "name": "la11",
+        "jobs": 20,
+        "machines": 5,
+        "optimum": 1222,
+        "path": "instances/la11"
+      },
+      "scheduleopt": {
+        "instance": "la11",
+        "size": "20 x 5",
+        "family": "la",
+        "family_long": "Lawrence 1984",
+        "type": "legacy",
+        "status": "closed",
+        "lower_bound": 1222,
+        "upper_bound": 1222,
+        "history": {
+          "lb": [
+            {
+              "value": 1222,
+              "date": "2023-08-25",
+              "solver": "OptalCP",
+              "hardware": "Intel 11th Gen Core i7-1185G7",
+              "time": 1,
+              "certificate": "machine load"
+            },
+            {
+              "value": 1222,
+              "date": "1988-01-01",
+              "solver": "ABZ1988",
+              "hardware": null,
+              "time": null,
+              "certificate": "machine load"
+            }
+          ],
+          "ub": [
+            {
+              "value": 1222,
+              "date": "2023-08-25",
+              "solver": "OptalCP",
+              "hardware": "Intel 11th Gen Core i7-1185G7",
+              "time": 1,
+              "certificate": "no"
+            },
+            {
+              "value": 1222,
+              "date": "1988-01-01",
+              "solver": "ABZ1988",
+              "hardware": null,
+              "time": null,
+              "certificate": "no"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "la12",
+      "jobs": 20,
+      "machines": 5,
+      "bks": 1039,
+      "status": "optimum reported by both catalogues",
+      "jsplib": {
+        "name": "la12",
+        "jobs": 20,
+        "machines": 5,
+        "optimum": 1039,
+        "path": "instances/la12"
+      },
+      "scheduleopt": {
+        "instance": "la12",
+        "size": "20 x 5",
+        "family": "la",
+        "family_long": "Lawrence 1984",
+        "type": "legacy",
+        "status": "closed",
+        "lower_bound": 1039,
+        "upper_bound": 1039,
+        "history": {
+          "lb": [
+            {
+              "value": 1039,
+              "date": "2023-08-25",
+              "solver": "OptalCP",
+              "hardware": "Intel 11th Gen Core i7-1185G7",
+              "time": 1,
+              "certificate": "machine load"
+            },
+            {
+              "value": 1039,
+              "date": "1988-01-01",
+              "solver": "ABZ1988",
+              "hardware": null,
+              "time": null,
+              "certificate": "machine load"
+            }
+          ],
+          "ub": [
+            {
+              "value": 1039,
+              "date": "2023-08-25",
+              "solver": "OptalCP",
+              "hardware": "Intel 11th Gen Core i7-1185G7",
+              "time": 1,
+              "certificate": "no"
+            },
+            {
+              "value": 1039,
+              "date": "1988-01-01",
+              "solver": "ABZ1988",
+              "hardware": null,
+              "time": null,
+              "certificate": "no"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "la16",
+      "jobs": 10,
+      "machines": 10,
+      "bks": 945,
+      "status": "optimum reported by both catalogues",
+      "jsplib": {
+        "name": "la16",
+        "jobs": 10,
+        "machines": 10,
+        "optimum": 945,
+        "path": "instances/la16"
+      },
+      "scheduleopt": {
+        "instance": "la16",
+        "size": "10 x 10",
+        "family": "la",
+        "family_long": "Lawrence 1984",
+        "type": "legacy",
+        "status": "closed",
+        "lower_bound": 945,
+        "upper_bound": 945,
+        "history": {
+          "lb": [
+            {
+              "value": 945,
+              "date": "2023-08-25",
+              "solver": "OptalCP",
+              "hardware": "Intel 11th Gen Core i7-1185G7",
+              "time": 1,
+              "certificate": "no"
+            },
+            {
+              "value": 945,
+              "date": "1990-01-01",
+              "solver": "CP1990",
+              "hardware": null,
+              "time": null,
+              "certificate": "no"
+            }
+          ],
+          "ub": [
+            {
+              "value": 945,
+              "date": "2023-08-25",
+              "solver": "OptalCP",
+              "hardware": "Intel 11th Gen Core i7-1185G7",
+              "time": 1,
+              "certificate": "no"
+            },
+            {
+              "value": 945,
+              "date": "1990-01-01",
+              "solver": "CP1990",
+              "hardware": null,
+              "time": null,
+              "certificate": "no"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "la17",
+      "jobs": 10,
+      "machines": 10,
+      "bks": 784,
+      "status": "optimum reported by both catalogues",
+      "jsplib": {
+        "name": "la17",
+        "jobs": 10,
+        "machines": 10,
+        "optimum": 784,
+        "path": "instances/la17"
+      },
+      "scheduleopt": {
+        "instance": "la17",
+        "size": "10 x 10",
+        "family": "la",
+        "family_long": "Lawrence 1984",
+        "type": "legacy",
+        "status": "closed",
+        "lower_bound": 784,
+        "upper_bound": 784,
+        "history": {
+          "lb": [
+            {
+              "value": 784,
+              "date": "2023-08-25",
+              "solver": "OptalCP",
+              "hardware": "Intel 11th Gen Core i7-1185G7",
+              "time": 1,
+              "certificate": "no"
+            },
+            {
+              "value": 784,
+              "date": "1990-01-01",
+              "solver": "CP1990",
+              "hardware": null,
+              "time": null,
+              "certificate": "no"
+            }
+          ],
+          "ub": [
+            {
+              "value": 784,
+              "date": "2023-08-25",
+              "solver": "OptalCP",
+              "hardware": "Intel 11th Gen Core i7-1185G7",
+              "time": 1,
+              "certificate": "no"
+            },
+            {
+              "value": 784,
+              "date": "1988-01-01",
+              "solver": "MSS1988",
+              "hardware": null,
+              "time": null,
+              "certificate": "no"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "la21",
+      "jobs": 15,
+      "machines": 10,
+      "bks": 1046,
+      "status": "optimum reported by both catalogues",
+      "jsplib": {
+        "name": "la21",
+        "jobs": 15,
+        "machines": 10,
+        "optimum": 1046,
+        "path": "instances/la21"
+      },
+      "scheduleopt": {
+        "instance": "la21",
+        "size": "15 x 10",
+        "family": "la",
+        "family_long": "Lawrence 1984",
+        "type": "legacy",
+        "status": "closed",
+        "lower_bound": 1046,
+        "upper_bound": 1046,
+        "history": {
+          "lb": [
+            {
+              "value": 1046,
+              "date": "2023-08-25",
+              "solver": "OptalCP",
+              "hardware": "Intel 11th Gen Core i7-1185G7",
+              "time": 1,
+              "certificate": "no"
+            },
+            {
+              "value": 1046,
+              "date": "1996-01-01",
+              "solver": "Vaessens1996",
+              "hardware": null,
+              "time": null,
+              "certificate": "no"
+            }
+          ],
+          "ub": [
+            {
+              "value": 1046,
+              "date": "2023-08-25",
+              "solver": "OptalCP",
+              "hardware": "Intel 11th Gen Core i7-1185G7",
+              "time": 1,
+              "certificate": "no"
+            },
+            {
+              "value": 1046,
+              "date": "1996-01-01",
+              "solver": "Vaessens1996",
+              "hardware": null,
+              "time": null,
+              "certificate": "no"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "la22",
+      "jobs": 15,
+      "machines": 10,
+      "bks": 927,
+      "status": "optimum reported by both catalogues",
+      "jsplib": {
+        "name": "la22",
+        "jobs": 15,
+        "machines": 10,
+        "optimum": 927,
+        "path": "instances/la22"
+      },
+      "scheduleopt": {
+        "instance": "la22",
+        "size": "15 x 10",
+        "family": "la",
+        "family_long": "Lawrence 1984",
+        "type": "legacy",
+        "status": "closed",
+        "lower_bound": 927,
+        "upper_bound": 927,
+        "history": {
+          "lb": [
+            {
+              "value": 927,
+              "date": "2023-08-25",
+              "solver": "OptalCP",
+              "hardware": "Intel 11th Gen Core i7-1185G7",
+              "time": 1,
+              "certificate": "no"
+            },
+            {
+              "value": 927,
+              "date": "1991-01-01",
+              "solver": "AC1991",
+              "hardware": null,
+              "time": null,
+              "certificate": "no"
+            }
+          ],
+          "ub": [
+            {
+              "value": 927,
+              "date": "2023-08-25",
+              "solver": "OptalCP",
+              "hardware": "Intel 11th Gen Core i7-1185G7",
+              "time": 1,
+              "certificate": "no"
+            },
+            {
+              "value": 927,
+              "date": "1988-01-01",
+              "solver": "MSS1988",
+              "hardware": null,
+              "time": null,
+              "certificate": "no"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "la26",
+      "jobs": 20,
+      "machines": 10,
+      "bks": 1218,
+      "status": "optimum reported by both catalogues",
+      "jsplib": {
+        "name": "la26",
+        "jobs": 20,
+        "machines": 10,
+        "optimum": 1218,
+        "path": "instances/la26"
+      },
+      "scheduleopt": {
+        "instance": "la26",
+        "size": "20 x 10",
+        "family": "la",
+        "family_long": "Lawrence 1984",
+        "type": "legacy",
+        "status": "closed",
+        "lower_bound": 1218,
+        "upper_bound": 1218,
+        "history": {
+          "lb": [
+            {
+              "value": 1218,
+              "date": "2023-08-25",
+              "solver": "OptalCP",
+              "hardware": "Intel 11th Gen Core i7-1185G7",
+              "time": 1,
+              "certificate": "machine load"
+            },
+            {
+              "value": 1218,
+              "date": "1988-01-01",
+              "solver": "ABZ1988",
+              "hardware": null,
+              "time": null,
+              "certificate": "machine load"
+            }
+          ],
+          "ub": [
+            {
+              "value": 1218,
+              "date": "2023-08-25",
+              "solver": "OptalCP",
+              "hardware": "Intel 11th Gen Core i7-1185G7",
+              "time": 1,
+              "certificate": "no"
+            },
+            {
+              "value": 1218,
+              "date": "1988-01-01",
+              "solver": "MSS1988",
+              "hardware": null,
+              "time": null,
+              "certificate": "no"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "la27",
+      "jobs": 20,
+      "machines": 10,
+      "bks": 1235,
+      "status": "optimum reported by both catalogues",
+      "jsplib": {
+        "name": "la27",
+        "jobs": 20,
+        "machines": 10,
+        "optimum": 1235,
+        "path": "instances/la27"
+      },
+      "scheduleopt": {
+        "instance": "la27",
+        "size": "20 x 10",
+        "family": "la",
+        "family_long": "Lawrence 1984",
+        "type": "legacy",
+        "status": "closed",
+        "lower_bound": 1235,
+        "upper_bound": 1235,
+        "history": {
+          "lb": [
+            {
+              "value": 1235,
+              "date": "2023-08-25",
+              "solver": "OptalCP",
+              "hardware": "Intel 11th Gen Core i7-1185G7",
+              "time": 1,
+              "certificate": "machine load"
+            },
+            {
+              "value": 1235,
+              "date": "1988-01-01",
+              "solver": "ABZ1988",
+              "hardware": null,
+              "time": null,
+              "certificate": "machine load"
+            }
+          ],
+          "ub": [
+            {
+              "value": 1235,
+              "date": "2023-08-25",
+              "solver": "OptalCP",
+              "hardware": "Intel 11th Gen Core i7-1185G7",
+              "time": 1,
+              "certificate": "no"
+            },
+            {
+              "value": 1235,
+              "date": "1994-01-01",
+              "solver": "CP1994",
+              "hardware": null,
+              "time": null,
+              "certificate": "no"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "la31",
+      "jobs": 30,
+      "machines": 10,
+      "bks": 1784,
+      "status": "optimum reported by both catalogues",
+      "jsplib": {
+        "name": "la31",
+        "jobs": 30,
+        "machines": 10,
+        "optimum": 1784,
+        "path": "instances/la31"
+      },
+      "scheduleopt": {
+        "instance": "la31",
+        "size": "30 x 10",
+        "family": "la",
+        "family_long": "Lawrence 1984",
+        "type": "legacy",
+        "status": "closed",
+        "lower_bound": 1784,
+        "upper_bound": 1784,
+        "history": {
+          "lb": [
+            {
+              "value": 1784,
+              "date": "2023-08-25",
+              "solver": "OptalCP",
+              "hardware": "Intel 11th Gen Core i7-1185G7",
+              "time": 1,
+              "certificate": "machine load"
+            },
+            {
+              "value": 1784,
+              "date": "1988-01-01",
+              "solver": "ABZ1988",
+              "hardware": null,
+              "time": null,
+              "certificate": "machine load"
+            }
+          ],
+          "ub": [
+            {
+              "value": 1784,
+              "date": "2023-08-25",
+              "solver": "OptalCP",
+              "hardware": "Intel 11th Gen Core i7-1185G7",
+              "time": 1,
+              "certificate": "no"
+            },
+            {
+              "value": 1784,
+              "date": "1988-01-01",
+              "solver": "ABZ1988",
+              "hardware": null,
+              "time": null,
+              "certificate": "no"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "la32",
+      "jobs": 30,
+      "machines": 10,
+      "bks": 1850,
+      "status": "optimum reported by both catalogues",
+      "jsplib": {
+        "name": "la32",
+        "jobs": 30,
+        "machines": 10,
+        "optimum": 1850,
+        "path": "instances/la32"
+      },
+      "scheduleopt": {
+        "instance": "la32",
+        "size": "30 x 10",
+        "family": "la",
+        "family_long": "Lawrence 1984",
+        "type": "legacy",
+        "status": "closed",
+        "lower_bound": 1850,
+        "upper_bound": 1850,
+        "history": {
+          "lb": [
+            {
+              "value": 1850,
+              "date": "2023-08-25",
+              "solver": "OptalCP",
+              "hardware": "Intel 11th Gen Core i7-1185G7",
+              "time": 1,
+              "certificate": "machine load"
+            },
+            {
+              "value": 1850,
+              "date": "1988-01-01",
+              "solver": "ABZ1988",
+              "hardware": null,
+              "time": null,
+              "certificate": "machine load"
+            }
+          ],
+          "ub": [
+            {
+              "value": 1850,
+              "date": "2023-08-25",
+              "solver": "OptalCP",
+              "hardware": "Intel 11th Gen Core i7-1185G7",
+              "time": 1,
+              "certificate": "no"
+            },
+            {
+              "value": 1850,
+              "date": "1988-01-01",
+              "solver": "ABZ1988",
+              "hardware": null,
+              "time": null,
+              "certificate": "no"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "la36",
+      "jobs": 15,
+      "machines": 15,
+      "bks": 1268,
+      "status": "optimum reported by both catalogues",
+      "jsplib": {
+        "name": "la36",
+        "jobs": 15,
+        "machines": 15,
+        "optimum": 1268,
+        "path": "instances/la36"
+      },
+      "scheduleopt": {
+        "instance": "la36",
+        "size": "15 x 15",
+        "family": "la",
+        "family_long": "Lawrence 1984",
+        "type": "legacy",
+        "status": "closed",
+        "lower_bound": 1268,
+        "upper_bound": 1268,
+        "history": {
+          "lb": [
+            {
+              "value": 1268,
+              "date": "2023-08-25",
+              "solver": "OptalCP",
+              "hardware": "Intel 11th Gen Core i7-1185G7",
+              "time": 1,
+              "certificate": "no"
+            },
+            {
+              "value": 1268,
+              "date": "1990-01-01",
+              "solver": "CP1990",
+              "hardware": null,
+              "time": null,
+              "certificate": "no"
+            }
+          ],
+          "ub": [
+            {
+              "value": 1268,
+              "date": "2023-08-25",
+              "solver": "OptalCP",
+              "hardware": "Intel 11th Gen Core i7-1185G7",
+              "time": 1,
+              "certificate": "no"
+            },
+            {
+              "value": 1268,
+              "date": "1990-01-01",
+              "solver": "CP1990",
+              "hardware": null,
+              "time": null,
+              "certificate": "no"
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "checks": [
+    "All operation pairs agree between OR-Library and JSPLIB",
+    "Dimensions and classical full-machine routes checked",
+    "BKS equals JSPLIB optimum and both ScheduleOpt bounds; status closed",
+    "BKS is at least the elementary job/machine workload lower bound"
+  ],
+  "limitation": "Catalogue agreement was checked; mathematical optimality proofs were not reproduced."
+}
