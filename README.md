@@ -79,7 +79,7 @@ This reader accepts a named instance in the original format. It does not guess a
 
 Compare algorithms at equal evaluation budgets rather than equal iteration counts: one population step evaluates many candidates, while one SA step evaluates one. Runtime includes progress callbacks, file writes and live report rendering, so use the same reporting setup across methods and treat these as observed script runtimes. Initialization costs differ. The same seed numbers do not make the four random searches identical.
 
-Parameters can be set in a JSON file, for example `{"ga":{"population":30,"mutation":0.3},"sa":{"temperature":30,"cooling":0.999}}`, passed with `--parameters path/to/parameters.json`. Default values are teaching starting points, not tuned research settings. Effective values are saved in every run JSON; fields for other algorithms are inactive. The public experiment below uses 18 verified benchmark instances and 20 seeds per instance, with the existing defaults frozen in advance. No parameter tuning was performed. A later study can tune on separate pilot instances and rerun the same protocol. Summary statistics are descriptive; no Friedman or post-hoc test is implemented.
+Parameters can be set in a JSON file, for example `{"ga":{"population":30,"mutation":0.3},"sa":{"temperature":30,"cooling":0.999}}`, passed with `--parameters path/to/parameters.json`. Default values are teaching starting points, not tuned research settings. Effective values are saved in every run JSON; fields for other algorithms are inactive. The public experiment below uses 18 verified benchmark instances and 20 seeds per instance, with the existing defaults frozen in advance. No parameter tuning was performed. A later study can tune on separate pilot instances and rerun the same protocol. The statistical analysis below adds paired tests across instances; the descriptive tables still show solution quality and variation.
 
 
 ## Public benchmark experiment
@@ -129,7 +129,7 @@ Each cell below is **mean makespan (sample standard deviation)** across 20 seeds
 
 | Instance | Jobs × machines | Verified BKS | GA | DPSO | ACO | SA |
 | --- | --- | ---: | ---: | ---: | ---: | ---: |
-| ft06 | 6 × 6 | 55 | 56.55 (1.85) | **55.45 (1.15)** | 59.20 (0.70) | 55.45 (1.15) |
+| ft06 | 6 × 6 | 55 | 56.55 (1.85) | **55.45 (1.15)** | 59.20 (0.70) | 55.55 (1.05) |
 | ft10 | 10 × 10 | 930 | 1067.00 (30.41) | 1072.35 (19.33) | 1107.45 (14.29) | **1053.40 (32.97)** |
 | ft20 | 20 × 5 | 1165 | 1357.70 (28.47) | 1379.50 (20.34) | 1351.20 (16.43) | **1317.90 (33.38)** |
 | la01 | 10 × 5 | 666 | 688.50 (13.13) | 686.00 (12.37) | 749.55 (14.26) | **674.20 (11.87)** |
@@ -187,4 +187,58 @@ write_report('results/public-18-best.html', runs)
 PYTHON
 ```
 
-The budget is 1,000 evaluations per run and the parameters were not tuned. The sample covers two classic families and several size groups contain only one or two instances. Runtime includes disk writes and report updates, and different seeds may incur different report work. No statistical significance test or new proof of optimality was performed. A larger budget, balanced tuning on separate pilot cases, more benchmark families and paired statistical tests would be needed before making broader recommendations.
+The budget is 1,000 evaluations per run and the parameters were not tuned. The sample covers two classic families and several size groups contain only one or two instances. Runtime includes disk writes and report updates, and different seeds may incur different report work. The paired tests below assess differences for this selected sample; no new proof of optimality was performed. A larger budget, balanced tuning on separate pilot cases, more benchmark families and confirmation on a separate benchmark sample would be needed before making broader recommendations.
+
+## Are the differences statistically significant?
+
+**Yes, for these 18 benchmark instances and these settings, all six algorithm pairs differ significantly after correcting for multiple comparisons.** The results favor SA over GA, GA over DPSO, and DPSO over ACO. This supports the observed ordering across the sample; it does not mean each algorithm wins on every instance.
+
+This follows the statistical comparison proposed in section IV.C of the supplied proposal. One **instance** is one paired observation. For each algorithm we average its 20 seed results on that instance, giving 18 observations per algorithm. The 360 runs per algorithm are not treated as 360 independent benchmark cases. Tests concern solution quality, not runtime or seed-to-seed variability.
+
+### Overall comparison: Friedman test
+
+Friedman ranks the four algorithms within each instance: rank 1 is best, and ties share the average rank. Ranking mean makespan gives the same order as ranking mean RPD because all algorithms share that instance's BKS. Average ranks are **SA 1.139**, **GA 2.139**, **DPSO 2.833**, and **ACO 3.889**.
+
+The tie-corrected Friedman statistic is **44.691429** with 3 degrees of freedom. Its usual chi-square approximation gives **p = 1.08e-09**. However, [SciPy cautions about this approximation](https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.friedmanchisquare.html) with this few algorithms, so the main check uses **99,999 random permutations**, shuffling algorithm labels separately within each instance while keeping the instance pairs intact.
+
+None of those shuffled results had a Friedman statistic as large as the observed one. Counting the observed result as well gives a **Monte Carlo p-value of 0.000010**, the smallest reportable value with this number of draws; it is not a zero probability or a claim that the true p-value is exactly 0.000010. The permutation seed is 20261121. Both methods reject equal performance at the 5% threshold.
+
+In plain language, if algorithm labels were interchangeable on each benchmark, an ordering this consistent would be unusual. Friedman tells us that some algorithms differ; the pairwise tests below identify which ones. A p-value is not the probability that an algorithm is best or that the no-difference claim is true.
+
+**Kendall's W = 0.828** summarizes agreement in the instance rankings on a scale from 0 to 1. A value of 1 represents perfect agreement in ranking; 0.828 shows a fairly consistent ordering across these cases.
+
+### Pairwise comparisons: exact Wilcoxon tests with Holm correction
+
+The six comparisons use **two-sided Wilcoxon signed-rank tests** on paired differences in mean RPD. Using RPD puts the different instance sizes on a common scale. Equal results are discarded for that pair; equal absolute differences receive average ranks. The script builds each difference with exact fractions before converting to floats, so subtraction rounding cannot create or remove a tie.
+
+The p-values enumerate every sign assignment of the remaining differences: from 65,536 to 262,144 assignments per pair. These are exact sign-permutation calculations, not a normal approximation. The test assumes the paired differences are symmetric under the no-difference claim. [SciPy documents the signed-rank assumptions and tie handling](https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.wilcoxon.html); its [paired permutation test](https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.permutation_test.html) supplies the enumeration.
+
+**Holm correction** covers all six pairs together at a 5% family-wise error threshold. It guards against declaring a difference simply because several comparisons were tried; it does not remove the sampling and modeling assumptions. See the [Holm method description](https://www.statsmodels.org/stable/generated/statsmodels.stats.multitest.multipletests.html).
+
+| Comparison | Lower mean RPD across the sample | Raw p-value | Holm-adjusted p-value | Significant at 5%? |
+| --- | --- | ---: | ---: | --- |
+| SA vs GA | SA | 0.00003052 | 0.00009155 | Yes |
+| SA vs DPSO | SA | 0.00007629 | 0.00015259 | Yes |
+| SA vs ACO | SA | 0.00000763 | 0.00004578 | Yes |
+| GA vs DPSO | GA | 0.00556946 | 0.00556946 | Yes |
+| GA vs ACO | GA | 0.00001526 | 0.00007629 | Yes |
+| DPSO vs ACO | DPSO | 0.00002289 | 0.00009155 | Yes |
+
+The weakest of these six findings is **GA versus DPSO**, but its adjusted p-value of **0.00557** is still below 0.05. This is evidence of a difference for the tested setup, not a guarantee that GA beats DPSO on another problem.
+
+Statistical significance does not tell us how large a gain is. Across the 18 paired instance means, SA's **median RPD advantage** is **1.66 percentage points over GA**, **2.04 points over DPSO**, and **9.41 points over ACO**. GA's median advantage over DPSO is **0.59 points**. These are percentage-point differences in deviation from BKS, not percentages of processing time saved. They are descriptive median gaps, rather than confidence intervals.
+
+The comparisons were requested after the descriptive results were known, so this is an **exploratory analysis**, not a statistical plan fixed before the experiment. Instances are treated as independent blocks, but they were selected from two related benchmark families rather than randomly sampled from all scheduling problems. The parameters were untuned and the budget was 1,000 evaluations. The tests provide evidence for these implementations on this sample; separate benchmark families and settings are needed to check whether the ordering holds more broadly.
+
+### Reproduce and inspect the analysis
+
+The analysis uses the committed run results, so it does not rerun the scheduling algorithms. [statistics.json](experiments/public-18/statistics.json) records all p-values, test settings, pair counts, direction counts, input hashes and software versions. [statistics-blocks.csv](experiments/public-18/statistics-blocks.csv) contains the 18 paired mean RPD values and ranks. The loader verifies the run and metadata hashes against the existing audit and requires every expected instance/algorithm/seed combination.
+
+The optional [analysis dependencies](requirements-statistics.txt) are pinned; the scheduling application still needs only Python's standard library. With `uv` installed, run:
+
+```sh
+uv run --python 3.14 --with-requirements requirements-statistics.txt python scripts/analyze_public_results.py
+uv run --python 3.14 --with-requirements requirements-statistics.txt python -m unittest discover -s tests -v
+```
+
+The analysis environment ran **13 passing tests**, including known Holm results, exact signed-rank cases with zeros and ties, Friedman tie correction, and rejection of changed or incomplete run data. All six observed pairwise p-values were also cross-checked against SciPy's separate exact Wilcoxon distribution calculation; their nonzero absolute differences have no ties.
