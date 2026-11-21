@@ -123,7 +123,7 @@ def audit(raw, target=ROOT/'experiments/public-18'):
     audit_record=dict(runs=len(rows),instances=len(inputs),seeds_per_algorithm=len(protocol['seeds']),evaluations_per_run=budget,
                       candidate_evaluations=count,failures=0,validated_schedules=len(rows),source_revision=metadata['revision'],
                       raw_output_directory=str(raw),raw_sha256=raw_hashes,
-                      checks=['All 18 source datasets and both BKS catalogues agree','All 1,440 algorithm/instance/seed combinations present',
+                      checks=['All 18 source datasets and both BKS catalogues agree',f'All {len(expected):,} algorithm/instance/seed combinations present',
                               'All parameters and evaluation budgets equal the frozen protocol','Every best schedule validated and reproduced from its priority list',
                               'All per-evaluation telemetry matches saved histories','All CSV summary statistics independently recomputed'])
     (target/'audit.json').write_text(json.dumps(audit_record,indent=2)+'\n')

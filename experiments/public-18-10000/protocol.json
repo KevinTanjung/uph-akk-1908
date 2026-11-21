@@ -65,7 +65,9 @@
   "parameter_overrides": {},
   "tuning": "No tuning: identical defaults to the 1000-evaluation run, including the same SA temperature and per-evaluation cooling rate",
   "selection": "All 3 Fisher\u2013Thompson cases plus first 2 Lawrence cases from each size group, with only la36 from the 15x15 group to total 18. Chosen before results.",
-  "execution": "Sequential runs on one machine with shared decoder, validator and reporting settings",
-  "command": "python3 -m jssp --instances instances/public/*.json --algorithms ga dpso aco sa --budget 10000 --repeats 20 --seed 0 --quiet --output results/public-18-10000",
-  "comparison_baseline": "experiments/public-18"
+  "execution": "Four concurrent Python processes, one instance per process; each process runs its algorithms and seeds sequentially",
+  "command": "python3 scripts/run_partitioned_experiment.py --protocol experiments/public-18-10000/protocol.json --output results/public-18-10000 --workers 4",
+  "comparison_baseline": "experiments/public-18",
+  "workers": 4,
+  "initial_sequential_attempt": "Stopped for execution cost before completion; partial data retained locally in results/public-18-10000-sequential-partial and excluded from the final experiment"
 }
