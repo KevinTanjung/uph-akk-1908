@@ -12,7 +12,7 @@ from dataclasses import asdict
 from datetime import datetime, timezone
 from pathlib import Path
 from time import perf_counter
-from .algorithms import solve
+from .algorithms import DEFAULTS, solve
 from .core import load, load_orlib, decode, spt, validate
 from .report import write_report
 
@@ -34,11 +34,16 @@ def main(argv=None):
     parser.add_argument('--orlib-name',help='Named instance in one OR-Library jobshop1 file; BKS left unset')
     parser.add_argument('--output',type=Path,help='New output directory; existing directories are refused')
     parser.add_argument('--quiet',action='store_true')
+    parser.add_argument('--resume',action='store_true',help='Reuse completed run files in an existing output directory')
     args=parser.parse_args(argv)
     if args.budget<1 or args.repeats<1: parser.error('budget and repeats must be positive')
     if args.orlib_name and len(args.instances)!=1: parser.error('OR-Library mode requires exactly one file')
     output=args.output or Path('results')/datetime.now(timezone.utc).strftime('%Y%m%dT%H%M%S%fZ')
-    output.mkdir(parents=True,exist_ok=False)
+    output.mkdir(parents=True,exist_ok=args.resume)
+    if args.resume:
+        stamp=datetime.now(timezone.utc).strftime('%Y%m%dT%H%M%S%fZ')
+        for name in ('telemetry.jsonl','failures.jsonl'):
+            if (output/name).exists(): (output/name).rename(output/(name+'.before-resume-'+stamp))
     try: revision=subprocess.check_output(['git','rev-parse','HEAD'],stderr=subprocess.DEVNULL,text=True).strip()
     except (OSError,subprocess.CalledProcessError): revision=None
     metadata=dict(created_utc=datetime.now(timezone.utc).isoformat(),python=sys.version,platform=platform.platform(),
@@ -47,6 +52,7 @@ def main(argv=None):
     params=json.loads(args.parameters.read_text()) if args.parameters else {}
     if not isinstance(params,dict) or set(params)-{'ga','dpso','aco','sa'}: parser.error('invalid parameter file')
     metadata['parameter_overrides']=params
+    if args.resume: metadata['recovered_run_ids']=[]
     runs=[];summaries=[];baselines=[];failures=0
     last_report=perf_counter()
     print(f'Report: {output.resolve()/"report.html"}',flush=True)
@@ -78,7 +84,23 @@ def main(argv=None):
                             write_report(output/'report.html',runs+[preview],True)
                             last_report=perf_counter()
                     try:
-                        result=solve(inst,alg,args.budget,seed,progress,**params.get(alg,{}))
+                        saved=output/f'{run_id}.json'
+                        if args.resume and saved.exists():
+                            result=json.loads(saved.read_text())
+                            expected=(inst.name,alg,seed,args.budget,DEFAULTS | params.get(alg,{}))
+                            actual=tuple(result[key] for key in ('instance','algorithm','seed','budget','parameters'))
+                            if actual!=expected or len(result['history'])!=args.budget:
+                                raise ValueError('saved run does not match requested configuration')
+                            validate(inst,result['schedule'])
+                            if decode(inst,result['sequence'])!=(result['makespan'],result['schedule']):
+                                raise ValueError('saved schedule does not match its priority list')
+                            # Rebuild telemetry from completed histories; interrupted candidates remain in the backup.
+                            for event in result['history']:
+                                telemetry.write(json.dumps(dict(run_id=run_id,instance=inst.name,algorithm=alg,seed=seed,**event))+'\n')
+                            telemetry.flush()
+                            metadata['recovered_run_ids'].append(run_id)
+                        else:
+                            result=solve(inst,alg,args.budget,seed,progress,**params.get(alg,{}))
                         result.update(instance=inst.name,run_id=run_id,input_index=index)
                         (output/f'{run_id}.json').write_text(json.dumps(result,indent=2)+'\n')
                         # Full histories are already saved; retain only chart samples between runs.

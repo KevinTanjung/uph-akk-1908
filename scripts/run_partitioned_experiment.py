@@ -15,7 +15,7 @@ from jssp.benchmarks import NAMES
 from jssp.report import write_report
 
 
-def merge(output, protocol, workers):
+def merge(output, protocol, workers, resumed=False):
     runs=[];rows=[];summaries=[];baselines=[];part_metadata=[]
     with (output/'telemetry.jsonl').open('w') as telemetry, (output/'failures.jsonl').open('w') as failures:
         for index,name in enumerate(protocol['instances']):
@@ -51,7 +51,7 @@ def merge(output, protocol, workers):
     metadata=dict(part_metadata[0])
     metadata['inputs']=[record for part in part_metadata for record in part['inputs']]
     metadata['arguments']=dict(metadata['arguments'],instances=['instances/public/'+name+'.json' for name in protocol['instances']],output=str(output))
-    metadata['execution']=dict(mode='independent instance processes',workers=workers,partition_metadata=part_metadata,
+    metadata['execution']=dict(mode='independent instance processes',workers=workers,resumed=resumed,partition_metadata=part_metadata,
                                note='Runtime includes contention between workers; do not compare isolated speed with the sequential baseline')
     write_csv(output/'runs.csv',rows);write_csv(output/'summary.csv',summaries)
     (output/'metadata.json').write_text(json.dumps(metadata,indent=2)+'\n')
@@ -65,6 +65,7 @@ def main():
     parser.add_argument('--protocol',type=Path,required=True)
     parser.add_argument('--output',type=Path,required=True)
     parser.add_argument('--workers',type=int,default=4)
+    parser.add_argument('--resume',action='store_true')
     args=parser.parse_args()
     protocol=json.loads(args.protocol.read_text())
     if tuple(protocol['instances'])!=NAMES or protocol['parameters']!=DEFAULTS or protocol['parameter_overrides']:
@@ -72,21 +73,27 @@ def main():
     seeds=protocol['seeds']
     if seeds!=list(range(seeds[0],seeds[0]+len(seeds))) or args.workers<1:
         parser.error('requires consecutive seeds and positive worker count')
-    args.output.mkdir(parents=True,exist_ok=False)
-    (args.output/'parts').mkdir()
+    args.output.mkdir(parents=True,exist_ok=args.resume)
+    (args.output/'parts').mkdir(exist_ok=args.resume)
     def run(name):
         target=args.output/'parts'/name
+        if args.resume and (target/'metadata.json').exists():
+            previous=json.loads((target/'metadata.json').read_text())
+            requested=(protocol['budget'],len(seeds),seeds[0],protocol['algorithms'])
+            actual=tuple(previous['arguments'][key] for key in ('budget','repeats','seed','algorithms'))
+            if previous['failures']==0 and actual==requested: return name
         command=[sys.executable,'-m','jssp','--instances','instances/public/'+name+'.json',
                  '--algorithms',*protocol['algorithms'],'--budget',str(protocol['budget']),
                  '--repeats',str(len(seeds)),'--seed',str(seeds[0]),'--quiet','--output',str(target)]
-        with (args.output/'parts'/(name+'.log')).open('w') as log:
+        if args.resume and target.exists(): command.append('--resume')
+        with (args.output/'parts'/(name+'.log')).open('a') as log:
             subprocess.run(command,cwd=ROOT,stdout=log,stderr=subprocess.STDOUT,check=True)
         return name
     with ThreadPoolExecutor(max_workers=args.workers) as pool:
         jobs=[pool.submit(run,name) for name in protocol['instances']]
         for done,job in enumerate(as_completed(jobs),1):
             print(f'Completed instance {job.result()} ({done}/{len(jobs)})',flush=True)
-    merge(args.output,protocol,args.workers)
+    merge(args.output,protocol,args.workers,args.resume)
 
 
 if __name__=='__main__': main()

@@ -20,6 +20,16 @@ class PartitionTests(unittest.TestCase):
             subprocess.run([sys.executable,str(ROOT/'scripts/run_partitioned_experiment.py'),
                             '--protocol',str(path),'--output',str(output),'--workers','2'],
                            cwd=ROOT,stdout=subprocess.DEVNULL,check=True)
+            # Simulate a worker interrupted after writing all but its last run file.
+            part=output/'parts/la36'
+            (part/'metadata.json').unlink()
+            (part/'0-sa-1.json').unlink()
+            subprocess.run([sys.executable,str(ROOT/'scripts/run_partitioned_experiment.py'),
+                            '--protocol',str(path),'--output',str(output),'--workers','2','--resume'],
+                           cwd=ROOT,stdout=subprocess.DEVNULL,check=True)
+            recovered=json.loads((part/'metadata.json').read_text())['recovered_run_ids']
+            self.assertEqual(len(recovered),7)
+            self.assertNotIn('0-sa-1',recovered)
             audit(output,target)
             with (output/'runs.csv').open() as stream: rows=list(csv.DictReader(stream))
             self.assertEqual(len(rows),144)
