@@ -95,6 +95,8 @@ class StatisticsTests(unittest.TestCase):
             self.assertEqual(result['baseline_budget'],result['candidate_budget'])
             self.assertTrue(all(row['pvalue']==1 and not row['significant_at_0_05'] for row in result['improvements']))
             self.assertIn('Not applicable',result['prefix_verification']['status'])
+            self.assertEqual(result['unchanged_settings_controls']['ga']['matched_runs'],360)
+            self.assertNotIn('sa',result['unchanged_settings_controls'])
             self.assertFalse((new/'budget-comparison.json').exists())
 
     def test_audited_18_blocks_and_checksum_protection(self):

@@ -102,6 +102,17 @@ def compare(baseline=EXPERIMENT,candidate=CANDIDATE,tuning=False):
                 input_sha256={str(folder.relative_to(ROOT))+'/'+name:hashlib.sha256((folder/name).read_bytes()).hexdigest()
                               for folder in (baseline,candidate) for name in ('protocol.json','runs.csv','statistics.json','audit.json')})
     stem='tuning-comparison' if tuning else 'budget-comparison'
+    if tuning:
+        controls={}
+        for algorithm in algorithms:
+            old_cfg=old_protocol['parameters'] | old_protocol['parameter_overrides'].get(algorithm,{})
+            new_cfg=new_protocol['parameters'] | new_protocol['parameter_overrides'].get(algorithm,{})
+            if old_cfg==new_cfg:
+                matched=[{(row['instance'],int(row['seed'])):int(row['makespan']) for row in records if row['algorithm']==algorithm}
+                         for records in rows_by_budget]
+                if matched[0]!=matched[1]: raise ValueError('unchanged settings did not reproduce: '+algorithm)
+                controls[algorithm]=dict(matched_runs=len(matched[0]),field='final makespan',status='identical')
+        result['unchanged_settings_controls']=controls
     (candidate/(stem+'.json')).write_text(json.dumps(result,indent=2,allow_nan=False)+'\n')
     with (candidate/(stem+'.csv')).open('w',newline='') as stream:
         writer=csv.DictWriter(stream,fieldnames=list(instance_rows[0]));writer.writeheader();writer.writerows(instance_rows)
