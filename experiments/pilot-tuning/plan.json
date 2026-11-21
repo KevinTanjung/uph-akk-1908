@@ -1,0 +1,139 @@
+{
+  "instances": [
+    "la03",
+    "la13",
+    "la23",
+    "la37"
+  ],
+  "excluded_final_instances": [
+    "ft06",
+    "ft10",
+    "ft20",
+    "la01",
+    "la02",
+    "la06",
+    "la07",
+    "la11",
+    "la12",
+    "la16",
+    "la17",
+    "la21",
+    "la22",
+    "la26",
+    "la27",
+    "la31",
+    "la32",
+    "la36"
+  ],
+  "seeds": [
+    100,
+    101,
+    102
+  ],
+  "budget": 10000,
+  "algorithms": [
+    "ga",
+    "dpso",
+    "aco",
+    "sa"
+  ],
+  "selection": "Lowest arithmetic mean RPD across all 4 pilots and 3 seeds; ties favor the earlier configuration, with defaults first",
+  "parameters": {
+    "population": 20,
+    "crossover": 0.8,
+    "mutation": 0.2,
+    "inertia": 0.5,
+    "cognitive": 0.5,
+    "social": 0.5,
+    "alpha": 1.0,
+    "beta": 2.0,
+    "evaporation": 0.1,
+    "deposit": 1.0,
+    "temperature": 20.0,
+    "cooling": 0.995
+  },
+  "configurations": {
+    "ga": [
+      {},
+      {
+        "population": 10,
+        "crossover": 0.9,
+        "mutation": 0.4
+      },
+      {
+        "population": 40,
+        "crossover": 0.9,
+        "mutation": 0.2
+      },
+      {
+        "population": 20,
+        "crossover": 0.9,
+        "mutation": 0.6
+      }
+    ],
+    "dpso": [
+      {},
+      {
+        "population": 10,
+        "inertia": 0.3,
+        "cognitive": 0.7,
+        "social": 0.5,
+        "mutation": 0.4
+      },
+      {
+        "population": 20,
+        "inertia": 0.3,
+        "cognitive": 0.5,
+        "social": 0.7,
+        "mutation": 0.4
+      },
+      {
+        "population": 40,
+        "inertia": 0.7,
+        "cognitive": 0.7,
+        "social": 0.3,
+        "mutation": 0.2
+      }
+    ],
+    "aco": [
+      {},
+      {
+        "alpha": 1.0,
+        "beta": 1.0,
+        "evaporation": 0.2,
+        "deposit": 10.0
+      },
+      {
+        "alpha": 1.0,
+        "beta": 0.5,
+        "evaporation": 0.1,
+        "deposit": 100.0
+      },
+      {
+        "alpha": 2.0,
+        "beta": 0.5,
+        "evaporation": 0.3,
+        "deposit": 100.0
+      }
+    ],
+    "sa": [
+      {},
+      {
+        "temperature": 50.0,
+        "cooling": 0.999
+      },
+      {
+        "temperature": 100.0,
+        "cooling": 0.9995
+      },
+      {
+        "temperature": 20.0,
+        "cooling": 0.9995
+      }
+    ]
+  },
+  "fairness": "Each algorithm receives 4 configurations x 4 pilots x 3 seeds x 10000 evaluations = 480000 evaluations; total 1920000",
+  "freeze": "Candidate list, pilot instances, seeds, objective and tie rule committed before running any tuning trials",
+  "analysis_plan": "Repeat Friedman and six exact Wilcoxon/Holm tests on final instance means; separately compare tuned vs untuned by four exact Wilcoxon tests with Holm correction; no shared-prefix assumption after parameter changes",
+  "limitation": "Small candidate search, not exhaustive tuning; benchmark results from earlier tasks are known, but the selector reads only pilot outcomes"
+}
