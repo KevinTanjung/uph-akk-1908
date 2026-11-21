@@ -35,7 +35,7 @@ def audit(raw, target=ROOT/'experiments/public-18'):
     actual={(r['instance'],r['algorithm'],int(r['seed'])) for r in rows}
     assert len(rows)==len(expected)==len(actual) and actual==expected, 'incomplete or duplicate runs'
     assert metadata['failures']==0 and not (raw/'failures.jsonl').read_text(), 'recorded failures'
-    assert metadata['parameter_overrides']==protocol['parameter_overrides']=={}, 'unexpected parameter overrides'
+    assert metadata['parameter_overrides']==protocol['parameter_overrides'], 'unexpected parameter overrides'
     assert protocol['parameters']==DEFAULTS, 'parameter defaults changed'
     assert metadata['arguments']['budget']==budget and metadata['arguments']['repeats']==len(protocol['seeds'])
     assert metadata['arguments']['seed']==protocol['seeds'][0]
@@ -56,7 +56,7 @@ def audit(raw, target=ROOT/'experiments/public-18'):
             raw_hashes[path.name]=hashlib.sha256(content).hexdigest()
             result=json.loads(content);inst=inputs[result['instance']]
             assert (result['instance'],result['algorithm'],result['seed'])==(row['instance'],row['algorithm'],int(row['seed']))
-            assert result['parameters']==protocol['parameters']
+            assert result['parameters']==(protocol['parameters'] | protocol['parameter_overrides'].get(result['algorithm'],{}))
             assert result['budget']==budget==len(result['history'])==int(row['evaluations'])
             makespan,schedule=decode(inst,result['sequence']);validate(inst,result['schedule'])
             assert schedule==result['schedule'] and makespan==result['makespan']==int(row['makespan'])

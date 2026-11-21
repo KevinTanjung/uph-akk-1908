@@ -17,12 +17,12 @@ URLS = {
 }
 
 
-def verify_sources(folder=ROOT/'benchmarks/sources'):
+def verify_sources(folder=ROOT/'benchmarks/sources', names=NAMES):
     folder = Path(folder)
     primary = {row['name']: row for row in json.loads((folder/'jsplib/instances.json').read_text())}
     secondary = {row['instance']: row for row in json.loads((folder/'scheduleopt-bks.json').read_text())}
     records, instances = [], []
-    for name in NAMES:
+    for name in names:
         inst = load_orlib(folder/'jobshop1.txt', name)
         lines = [line.strip() for line in (folder/'jsplib'/name).read_text().splitlines()
                  if line.strip() and not line.lstrip().startswith('#')]
@@ -46,7 +46,7 @@ def verify_sources(folder=ROOT/'benchmarks/sources'):
         instances.append(inst)
         records.append(dict(name=name,jobs=n,machines=m,bks=bks,status='optimum reported by both catalogues',
                             jsplib=a,scheduleopt=b))
-    urls = URLS | {f'jsplib/{name}':f'https://raw.githubusercontent.com/tamy0612/JSPLIB/{JSPLIB}/instances/{name}' for name in NAMES}
+    urls = URLS | {f'jsplib/{name}':f'https://raw.githubusercontent.com/tamy0612/JSPLIB/{JSPLIB}/instances/{name}' for name in names}
     sources = {name:dict(url=url,sha256=hashlib.sha256((folder/name).read_bytes()).hexdigest()) for name,url in urls.items()}
     return instances, dict(verified_date='2026-11-21',sources=sources,instances=records,
                            checks=['All operation pairs agree between OR-Library and JSPLIB',

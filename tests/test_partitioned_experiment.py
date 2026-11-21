@@ -14,7 +14,7 @@ class PartitionTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as folder:
             root=Path(folder);target=root/'evidence';target.mkdir()
             protocol=json.loads((ROOT/'experiments/public-18/protocol.json').read_text())
-            protocol.update(budget=3,seeds=[0,1])
+            protocol.update(budget=3,seeds=[0,1],parameter_overrides={'ga':{'mutation':0.4},'sa':{'temperature':30.0}})
             path=target/'protocol.json';path.write_text(json.dumps(protocol))
             output=root/'raw'
             subprocess.run([sys.executable,str(ROOT/'scripts/run_partitioned_experiment.py'),
@@ -30,6 +30,8 @@ class PartitionTests(unittest.TestCase):
             recovered=json.loads((part/'metadata.json').read_text())['recovered_run_ids']
             self.assertEqual(len(recovered),7)
             self.assertNotIn('0-sa-1',recovered)
+            self.assertEqual(json.loads((part/'0-ga-0.json').read_text())['parameters']['mutation'],0.4)
+            self.assertEqual(json.loads((part/'0-sa-1.json').read_text())['parameters']['temperature'],30.0)
             audit(output,target)
             with (output/'runs.csv').open() as stream: rows=list(csv.DictReader(stream))
             self.assertEqual(len(rows),144)

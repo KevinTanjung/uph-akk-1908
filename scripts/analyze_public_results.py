@@ -126,7 +126,7 @@ def main(folder=EXPERIMENT):
                   friedman=omnibus, mean_ranks=dict(zip(algorithms, map(float, ranks.mean(axis=0)))), posthoc=pairs,
                   wilcoxon_method='Exact sign permutations of nonzero paired RPD differences; average ranks for ties; zeros discarded',
                   assumptions='Instances treated as independent blocks; exchangeable algorithm labels under omnibus null; symmetric paired differences for Wilcoxon',
-                  limitations=f"Selected instances from two families; untuned defaults and {protocol['budget']} evaluations; no universal algorithm claim; Monte Carlo omnibus p-value has finite resolution",
+                  limitations=f"Selected instances from two families; {'pilot-selected settings' if protocol['parameter_overrides'] else 'untuned defaults'} and {protocol['budget']} evaluations; no universal algorithm claim; Monte Carlo omnibus p-value has finite resolution",
                   input_sha256=inputs, software=dict(python=platform.python_version(), numpy=np.__version__, scipy=scipy.__version__))
     (folder/'statistics.json').write_text(json.dumps(result, indent=2, allow_nan=False)+'\n')
     with (folder/'statistics-blocks.csv').open('w', newline='') as stream:

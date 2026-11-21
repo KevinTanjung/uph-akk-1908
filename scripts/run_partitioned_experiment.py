@@ -68,23 +68,30 @@ def main():
     parser.add_argument('--resume',action='store_true')
     args=parser.parse_args()
     protocol=json.loads(args.protocol.read_text())
-    if tuple(protocol['instances'])!=NAMES or protocol['parameters']!=DEFAULTS or protocol['parameter_overrides']:
-        parser.error('requires the verified public instances and unchanged default parameters')
+    if tuple(protocol['instances'])!=NAMES or protocol['parameters']!=DEFAULTS:
+        parser.error('requires the verified public instances and recorded base defaults')
+    overrides=protocol['parameter_overrides']
+    if not isinstance(overrides,dict) or set(overrides)-set(protocol['algorithms']):
+        parser.error('invalid per-algorithm overrides')
     seeds=protocol['seeds']
     if seeds!=list(range(seeds[0],seeds[0]+len(seeds))) or args.workers<1:
         parser.error('requires consecutive seeds and positive worker count')
     args.output.mkdir(parents=True,exist_ok=args.resume)
     (args.output/'parts').mkdir(exist_ok=args.resume)
+    parameters=args.output/'parameters.json'
+    if parameters.exists() and json.loads(parameters.read_text())!=overrides:
+        parser.error('parameter overrides differ from the saved campaign')
+    parameters.write_text(json.dumps(overrides,indent=2)+'\n')
     def run(name):
         target=args.output/'parts'/name
         if args.resume and (target/'metadata.json').exists():
             previous=json.loads((target/'metadata.json').read_text())
             requested=(protocol['budget'],len(seeds),seeds[0],protocol['algorithms'])
             actual=tuple(previous['arguments'][key] for key in ('budget','repeats','seed','algorithms'))
-            if previous['failures']==0 and actual==requested: return name
+            if previous['failures']==0 and actual==requested and previous['parameter_overrides']==overrides: return name
         command=[sys.executable,'-m','jssp','--instances','instances/public/'+name+'.json',
                  '--algorithms',*protocol['algorithms'],'--budget',str(protocol['budget']),
-                 '--repeats',str(len(seeds)),'--seed',str(seeds[0]),'--quiet','--output',str(target)]
+                 '--repeats',str(len(seeds)),'--seed',str(seeds[0]),'--quiet','--parameters',str(parameters),'--output',str(target)]
         if args.resume and target.exists(): command.append('--resume')
         with (args.output/'parts'/(name+'.log')).open('a') as log:
             subprocess.run(command,cwd=ROOT,stdout=log,stderr=subprocess.STDOUT,check=True)
