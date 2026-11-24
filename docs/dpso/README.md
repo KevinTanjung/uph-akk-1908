@@ -1,13 +1,47 @@
 # Discrete Particle Swarm Optimization (DPSO)
 
-The proposal, section III.A and reference [8], calls for a discrete position and movement design. A real-valued PSO update cannot directly operate on a list of job numbers. The supplied slides do not provide a full DPSO implementation; the design below is this project's explicit adaptation, not a reproduction of Sha and Hsu's hybrid method.
+DPSO moves a swarm of job priority lists using ordered swaps. Particle $i$ has position $x_i$, previous velocity $V_i$, personal best $p_i$, and access to a snapshot $g$ of the best list at the start of each swarm sweep. All positions use the [shared decoder](../../README.md#scheduling-model).
 
-A particle's **position** is a job priority list. Its **velocity** is an ordered list of index swaps. Swaps preserve the number of operations for every job. Each particle remembers its own best position (**personal best**), while the swarm remembers the best position found by any particle (**global best**).
+## Discrete movement
 
-To move toward a target list, scan from left to right. At each mismatch, find the needed job later in a working copy and record the swap that puts it in place. Applying every recorded swap would reach that target, including when jobs occur several times.
+Let $D(x,y)$ be the ordered swaps that transform $x$ into $y$. Scan left to right; at each mismatch, find the required job later in a working copy and swap it into place. For example:
 
-The next velocity combines three lists: retained old swaps (**inertia**), swaps toward personal best (**cognitive** movement), and swaps toward a snapshot of global best (**social** movement). Each swap is independently kept with probability 0.5 for its part. Lists are concatenated in that order and capped at twice the number of operations to prevent unbounded velocity growth. Because these are sampled and combined movements, a step need not improve the schedule or reach either target.
+$$
+[0,1,0,1]\xrightarrow{(0,1)}[1,0,0,1]
+\xrightarrow{(2,3)}[1,0,1,0].
+$$
 
-Apply the swaps in order. With probability 0.2, add a random two-position mutation so an identical swarm can still explore. Evaluate the new position with the shared decoder, then update personal and global best when makespan improves. The default swarm has 20 particles. Initialization counts toward the budget; the final swarm step may be partial.
+Positions are numbered from zero. Let $\mathcal{S}_q(V)$ retain each swap independently with probability $q$, $\oplus$ concatenate lists, and $\operatorname{take}_{2N}$ keep the first $2N$ swaps for $N$ operations:
 
-See [the shared README](../../README.md) for execution and result files. This implementation does not include the paper's Giffler–Thompson decoder or tabu search. Its behavior must be assessed on the actual selected instances and settings.
+$$
+V_i'=\operatorname{take}_{2N}\left(
+\mathcal{S}_{\omega}(V_i)
+\oplus\mathcal{S}_{c_p}(D(x_i,p_i))
+\oplus\mathcal{S}_{c_g}(D(x_i,g))\right).
+$$
+
+Apply these swaps in order, then perform one extra random swap with probability $p_m$:
+
+$$
+\tilde{x}_i=\operatorname{apply}(V_i',x_i),\qquad
+x_i'=\begin{cases}
+\operatorname{swap}(\tilde{x}_i,u,v),&\text{with probability }p_m,\\
+\tilde{x}_i,&\text{otherwise}.
+\end{cases}
+$$
+
+Both target differences are computed from the position before movement. Sampled swaps can cancel each other; movement need not improve makespan. The extra mutation is not stored in $V_i'$.
+
+## Memory and budget
+
+Evaluate $C(x_i')$ and replace $p_i$ only if $C(x_i')<C(p_i)$. Retain the best evaluated list globally. Initialization and every moved candidate count toward the exact budget $B$; the last sweep may be partial.
+
+| Setting | Default | Pilot-selected |
+| --- | ---: | ---: |
+| Swarm size | 20 | 10 |
+| Inertia $\omega$ | 0.5 | 0.3 |
+| Personal-best probability $c_p$ | 0.5 | 0.7 |
+| Global-best probability $c_g$ | 0.5 | 0.5 |
+| Mutation $p_m$ | 0.2 | 0.4 |
+
+This implementation uses swaps without additional local search. See the [experiment overview](../../README.md#results) for the measured effect of the selected settings.

@@ -1,13 +1,42 @@
 # Simulated Annealing (SA)
 
-The proposal, section III.A and reference [9], defines SA as a search that changes one solution and sometimes accepts a worse one. That is the meaning of SA in this repository. The final two ACO lecture slides use “SA” while describing swarms and particles; they do not define Simulated Annealing and are not used as its instructions.
+SA follows one current job priority list while retaining the best list seen. A neighbor swaps two distinct positions, preserving job counts. Both lists use the [shared decoder](../../README.md#scheduling-model).
 
-The initial solution is a shuffled job priority list. A **neighbor** swaps two randomly selected positions. This keeps the operation counts unchanged. The shared decoder computes its makespan.
+## Neighbor and acceptance
 
-Let **delta** be the neighbor's makespan minus the current makespan. If delta is zero or negative, accept the neighbor. Otherwise accept it with probability `exp(-delta / temperature)`. This gives the search a chance to leave a local minimum. The best solution seen is stored separately, so accepting a worse current solution does not lose an earlier result.
+Start from a shuffled list $x$. Propose $y=\operatorname{swap}(x,u,v)$ and calculate
 
-**Temperature** starts at 20 time units. After each proposed neighbor it is multiplied by the **cooling rate**, 0.995, down to a numerical floor of `1e-12`. High temperatures make worse steps more likely. As temperature falls, the search becomes less willing to accept them. These defaults are starting settings; a problem with much larger processing times may need a different temperature.
+$$
+\Delta=C(y)-C(x),\qquad
+P(\text{accept }y)=\begin{cases}
+1,&\Delta\le 0,\\
+\exp(-\Delta/T),&\Delta>0.
+\end{cases}
+$$
 
-One initial candidate and every proposed neighbor count toward the same budget used by GA, DPSO and ACO. Rejected neighbors still count. Unlike those three methods, SA maintains one current solution rather than a population. It returns the best solution seen, not necessarily the last accepted solution.
+An improvement or tie is always accepted. For a worse move, draw $r\sim U[0,1)$ and accept when $r<\exp(-\Delta/T)$. For $\Delta=10$, acceptance is about $0.6065$ at $T=20$ and $0.0000454$ at $T=1$.
 
-See [the shared README](../../README.md) for commands and telemetry. This simple swap neighborhood and geometric cooling schedule implement the proposal's mechanism; they do not reproduce every detail of van Laarhoven et al.'s method or prove global optimality.
+The best evaluated list $x^*$ is retained separately:
+
+$$
+x^*\leftarrow y\quad\text{if }C(y)<C(x^*).
+$$
+
+Accepting a worse current list therefore does not erase a better saved answer.
+
+## Cooling and budget
+
+After every proposal, including a rejected one, cool geometrically:
+
+$$
+T_{t+1}=\max(10^{-12},\gamma T_t),\qquad 0<\gamma<1.
+$$
+
+One initial evaluation plus $B-1$ proposals uses budget $B$. Return $x^*$, which may differ from the final current list.
+
+| Setting | Default | Pilot-selected |
+| --- | ---: | ---: |
+| Initial temperature $T_0$ | 20 | 20 |
+| Cooling rate $\gamma$ | 0.995 | 0.9995 |
+
+After 1,000 cooling steps, the temperatures are approximately $0.1331$ and $12.1291$. Slower cooling allows uphill moves for longer; its usefulness must be measured. Temperature uses the same scale as makespan differences. See the [experiment overview](../../README.md#results).

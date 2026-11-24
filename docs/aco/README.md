@@ -1,13 +1,43 @@
 # Ant Colony Optimization (ACO)
 
-The supplied `12 00 Ant Colony Optimation.pptx` explains pheromone evaporation and deposits on slide 3, weighted route selection on slide 5, examples on slides 6–7, and the construction/update loop on slide 9. `Simulasi ACO 01.xlsx`, first worksheet, illustrates those updates for two routes. Its cells H3, I3 and J3 contain evaporation 0.1, alpha 1 and beta 1; D4 and E4 apply evaporation plus deposits. The lecture's slide 6 displays a different evaporation value; the workbook and slide examples should not be treated as one identical parameter setting.
+ACO builds priority lists one operation at a time, then reinforces transitions used by shorter schedules. Completed lists use the [shared decoder](../../README.md#scheduling-model).
 
-An **ant** builds one job priority list. It can choose only the next unscheduled operation of each unfinished job. These are its eligible choices. Each selected operation is added once, so every completed candidate has the correct operation counts and job order.
+## Construct a candidate
 
-**Pheromone** belongs to a directed transition between two operation identities, with an extra start node. It starts at 1. The **heuristic** for a choice is `1 / processing_duration`, which favors shorter operations. The probability of selecting an eligible operation is its `pheromone^alpha * heuristic^beta` weight divided by the sum of all eligible weights. Defaults are alpha 1 and beta 2. Beta 2 is a scheduling design choice, not a value copied from the workbook.
+Operation $o=(j,k)$ identifies operation $k$ of job $j$. The eligible set $E$ contains the next unscheduled operation of each unfinished job. From previous operation $a$ (or a start node), choose $o\in E$ with probability
 
-The decoder schedules each completed list and measures its makespan. After a colony of up to 20 ants, each pheromone value becomes `(1 - evaporation) * old_value`. Then each ant adds `deposit / makespan` to every transition it used. Defaults are evaporation 0.1 and deposit 1. A small positive floor of `1e-12` keeps long-unused transitions available. The next colony uses the updated pheromone.
+$$
+\eta_o=\frac{1}{d_o},\qquad
+P(o\mid a,E)=\frac{\tau_{ao}^{\alpha}\eta_o^{\beta}}
+{\sum_{v\in E}\tau_{av}^{\alpha}\eta_v^{\beta}}.
+$$
 
-This adapts the lecture's route length to schedule makespan and its route edges to operation transitions. The workbook uses fractional expected ant counts in its teaching example; this program samples individual ants instead. There is no return-to-start edge because a schedule is not a round trip. Optional local search in slide 9 is omitted. The best completed schedule is retained, and a partial last colony respects the evaluation budget.
+Here $d_o$ is processing duration, $\tau_{ao}$ is transition pheromone, $\alpha$ controls pheromone weight, and $\beta$ controls preference for shorter operations. Initially $\tau_{ao}=1$.
 
-See [the shared README](../../README.md) for execution and output. The shortest-operation heuristic does not anticipate every future machine conflict, and pheromone can concentrate too early. This is not a reproduction of Blum and Sampels' research implementation.
+For equal pheromone and durations 2 and 4, $\beta=2$ gives probabilities $0.8$ and $0.2$; $\beta=1$ gives $2/3$ and $1/3$. Append the chosen job to the list, update eligibility, and repeat until all $N$ operations are included. There is no return-to-start edge.
+
+## Update pheromone
+
+After a colony is evaluated, evaporate first and then add deposits from every ant:
+
+$$
+\tau_{ao}'=\max\left(10^{-12},(1-\rho)\tau_{ao}\right)
++\sum_{r=1}^{m}\frac{Q}{C(x_r)}
+\mathbf{1}\!\left[(a,o)\in\operatorname{path}(x_r)\right].
+$$
+
+Here $\rho$ is evaporation, $Q$ is deposit strength, $m$ is the completed colony size, and the indicator is 1 when ant $r$ used that transition. Smaller makespans deposit more pheromone. The floor applies before deposits.
+
+## Budget and settings
+
+Each completed ant spends one evaluation. A partial final colony respects the exact budget $B$. Keep the best list across all colonies. The transition table has $N(N+1)$ entries, so equal evaluation counts do not imply equal runtime across algorithms.
+
+| Setting | Default | Pilot-selected |
+| --- | ---: | ---: |
+| Colony size | 20 | 20 |
+| Pheromone weight $\alpha$ | 1 | 1 |
+| Duration weight $\beta$ | 2 | 1 |
+| Evaporation $\rho$ | 0.1 | 0.2 |
+| Deposit $Q$ | 1 | 10 |
+
+The short-operation heuristic cannot anticipate every machine conflict. See the [experiment overview](../../README.md#results) for outcomes across seeds and instances.

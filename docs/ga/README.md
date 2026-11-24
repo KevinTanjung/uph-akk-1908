@@ -1,15 +1,47 @@
 # Genetic Algorithm (GA)
 
-The supplied `12 00 Genetic Algorithm.pptx` introduces a population of chromosomes on slide 2, the search loop on slide 4, roulette-wheel selection on slide 7, crossover on slides 9–10 and mutation on slide 12. The proposal, section III.A, requires an encoding that works for job-shop scheduling.
+GA improves a population of job priority lists through selection, crossover and mutation. Every list is scored by the [shared decoder](../../README.md#scheduling-model).
 
-A **chromosome** here is a priority list of job numbers. Each **gene** is one occurrence of a job and selects its next operation. The number of occurrences stays equal to that job's operation count. This replaces the lecture's binary encoding for a numerical problem.
+## Chromosome and selection
 
-The initial **population** contains shuffled copies of the required job occurrences. The decoder computes each chromosome's makespan. **Fitness** is `1 / makespan`, so a shorter schedule gets a larger roulette-wheel selection weight.
+For job $j$ with $n_j$ operations, chromosome $x$ contains exactly $n_j$ copies of $j$. Its makespan is $C(x)$. Shorter schedules receive greater fitness and selection probability:
 
-**Selection** draws two parents using those weights. **Crossover**, used with probability 0.8, chooses a random subset of jobs. It keeps all occurrences of those jobs at their positions in the first parent and fills other positions in the second parent's order. This preserves every job's occurrence count. Direct one-point crossover from the binary example could lose or duplicate operations, so it is not used here.
+$$
+f(x)=\frac{1}{C(x)},\qquad
+P(x_i)=\frac{f(x_i)}{\sum_{r=1}^{P}f(x_r)}.
+$$
 
-**Mutation**, with probability 0.2 per child, swaps two positions. The decoder still schedules the first occurrence of a job before its second occurrence. Swapping identical job numbers leaves the candidate unchanged and still spends an evaluation.
+Here $P$ is population size. Two parents are drawn independently with these probabilities.
 
-**Elitism** keeps the best chromosome from the previous generation. Other positions are filled with evaluated children. The default population is 20. The search stops exactly at the candidate budget, including a partial last generation. The returned result is the best candidate seen throughout the run.
+## Crossover and mutation
 
-See [the shared README](../../README.md) for execution, decoder rules and telemetry. This is a simple scheduling adaptation of the lecture mechanism, not a reproduction of Cheng et al.'s survey or a claim of optimality. A population can lose variety and settle early; inspect convergence across several seeds.
+With probability $p_c$, select a subset of jobs $S$, including each job independently with probability $1/2$. Keep their positions from parent $a$ and fill the gaps in parent $b$'s order, skipping jobs in $S$:
+
+$$
+c_i=\begin{cases}
+a_i,&a_i\in S,\\
+\text{next entry of }b\text{ whose job is outside }S,&a_i\notin S.
+\end{cases}
+$$
+
+For $a=[0,1,2,0,1,2]$, $b=[2,1,0,1,2,0]$ and $S=\{1\}$, the child is $c=[2,1,0,2,1,0]$. Each job still occurs twice. Without crossover, copy parent $a$.
+
+With probability $p_m$, swap two distinct positions:
+
+$$
+c'=\operatorname{swap}(c,u,v),\qquad u\ne v.
+$$
+
+Both operators preserve job counts. Swapping identical values leaves the list unchanged but still spends an evaluation.
+
+## Replacement and budget
+
+Keep one evaluated elite, then fill the remaining population with evaluated children. Stop after exactly $B$ candidate evaluations, allowing a partial final generation. Return the best list seen; retaining the elite does not spend another evaluation.
+
+| Setting | Default | Pilot-selected |
+| --- | ---: | ---: |
+| Population $P$ | 20 | 20 |
+| Crossover $p_c$ | 0.8 | 0.8 |
+| Mutation $p_m$ | 0.2 | 0.2 |
+
+The defaults won the pilot search. A population can lose variety, so repeated seeds and convergence traces matter. See the [experiment overview](../../README.md#results).
